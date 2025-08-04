@@ -13,7 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -34,17 +33,20 @@ import com.texthip.thip.ui.theme.ThipTheme.colors
 @Composable
 fun GroupScreen(
     onNavigateToMakeRoom: () -> Unit = {},
+    onNavigateToGroupDone: () -> Unit = {}, // 완료된 화면으로 이동
+    onNavigateToAlarm: () -> Unit = {}, // 알림 화면으로 이동
+    onNavigateToGroupSearch: () -> Unit = {},   // 검색 화면으로 이동
+    onNavigateToGroupMy: () -> Unit = {},   // 내 모임방 화면으로 이동
+    onNavigateToGroupRecruit: (Int) -> Unit = {},   // 모집 중인 모임방 화면으로 이동
+    onNavigateToGroupRoom: (Int) -> Unit = {},  // 기록장 화면으로 이동
     viewModel: GroupViewModel = viewModel()
 ) {
     val myGroups by viewModel.myGroups.collectAsState()
     val roomSections by viewModel.roomSections.collectAsState()
     val scrollState = rememberScrollState()
-    val searchText by remember { mutableStateOf("") }
 
     Box(
-        Modifier
-            .background(colors.Black)
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             Modifier
@@ -55,27 +57,27 @@ fun GroupScreen(
             LogoTopAppBar(
                 leftIcon = painterResource(R.drawable.ic_done),
                 hasNotification = false,
-                onLeftClick = { },
-                onRightClick = { }
+                onLeftClick = onNavigateToGroupDone,
+                onRightClick = onNavigateToAlarm
             )
 
             // 검색창
             GroupSearchTextField(
                 modifier = Modifier.padding(top = 16.dp, bottom = 32.dp),
-                value = searchText,
-                onValueChange = {},
-                onClick = {}
+                onClick = onNavigateToGroupSearch
             )
 
             // 내 모임방 헤더 + 카드
             GroupMySectionHeader(
-                onClick = { viewModel.onMyGroupHeaderClick() }
+                onClick = onNavigateToGroupMy
             )
             Spacer(Modifier.height(20.dp))
 
             GroupPager(
                 groupCards = myGroups,
-                onCardClick = { viewModel.onMyGroupCardClick(it) }
+                onCardClick = { groupCard ->
+                    onNavigateToGroupRoom(groupCard.id)
+                }
             )
             Spacer(Modifier.height(32.dp))
 
@@ -90,7 +92,13 @@ fun GroupScreen(
             // 마감 임박한 독서 모임방
             GroupRoomDeadlineSection(
                 roomSections = roomSections,
-                onRoomClick = { viewModel.onRoomCardClick(it) }
+                onRoomClick = { room ->
+                    if (room.isRecruiting) {
+                        onNavigateToGroupRecruit(room.id)
+                    } else {
+                        onNavigateToGroupRoom(room.id)
+                    }
+                }
             )
             Spacer(Modifier.height(102.dp))
         }

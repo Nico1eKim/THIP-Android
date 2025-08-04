@@ -1,90 +1,116 @@
 package com.texthip.thip.ui.group.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.texthip.thip.R
+import androidx.lifecycle.viewModelScope
+import com.texthip.thip.data.group.repository.GroupRepository
 import com.texthip.thip.ui.group.myroom.mock.GroupCardData
 import com.texthip.thip.ui.group.myroom.mock.GroupCardItemRoomData
 import com.texthip.thip.ui.group.myroom.mock.GroupRoomSectionData
+import com.texthip.thip.ui.group.myroom.mock.GroupRoomData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class GroupViewModel : ViewModel() {
+class GroupViewModel(
+    private val repository: GroupRepository = GroupRepository()
+) : ViewModel() {
 
     private val _myGroups = MutableStateFlow<List<GroupCardData>>(emptyList())
-    val myGroups: StateFlow<List<GroupCardData>> = _myGroups
+    val myGroups: StateFlow<List<GroupCardData>> = _myGroups.asStateFlow()
 
     private val _roomSections = MutableStateFlow<List<GroupRoomSectionData>>(emptyList())
-    val roomSections: StateFlow<List<GroupRoomSectionData>> = _roomSections
+    val roomSections: StateFlow<List<GroupRoomSectionData>> = _roomSections.asStateFlow()
 
-    private val _genres = listOf("문학", "과학·IT", "사회과학", "인문학", "예술")
-    val genres: List<String> get() = _genres
+    private val _userName = MutableStateFlow("")
+    val userName: StateFlow<String> = _userName.asStateFlow()
 
-    // 초기 데이터 세팅 (실제에선 repository/remote에서 받아옴)
+    private val _doneGroups = MutableStateFlow<List<GroupCardItemRoomData>>(emptyList())
+    val doneGroups: StateFlow<List<GroupCardItemRoomData>> = _doneGroups.asStateFlow()
+
+    private val _myRoomGroups = MutableStateFlow<List<GroupCardItemRoomData>>(emptyList())
+    val myRoomGroups: StateFlow<List<GroupCardItemRoomData>> = _myRoomGroups.asStateFlow()
+
+    private val _searchGroups = MutableStateFlow<List<GroupCardItemRoomData>>(emptyList())
+    val searchGroups: StateFlow<List<GroupCardItemRoomData>> = _searchGroups.asStateFlow()
+
+    private val _genres = MutableStateFlow<List<String>>(emptyList())
+    val genres: StateFlow<List<String>> = _genres.asStateFlow()
+    
     init {
-        _myGroups.value = listOf(
-            GroupCardData("호르몬 체인지 완독하는 방", 22, R.drawable.bookcover_sample, 40, "uibowl1"),
-            GroupCardData("명작 읽기방", 10, R.drawable.bookcover_sample, 70, "joyce"),
-            GroupCardData("또 다른 방", 13, R.drawable.bookcover_sample, 10, "other")
-        )
-
-        // 마감 임박한 독서 모임방
-        val deadlineRooms = listOf(
-            GroupCardItemRoomData("시집만 읽는 사람들 3월", 22, 30, true, 3, R.drawable.bookcover_sample, 0),
-            GroupCardItemRoomData("일본 소설 좋아하는 사람들", 15, 20, true, 2, R.drawable.bookcover_sample, 0),
-            GroupCardItemRoomData("명작 같이 읽기방", 22, 30, true, 3, R.drawable.bookcover_sample, 0),
-            GroupCardItemRoomData("물리책 읽는 방", 13, 20, true, 1, R.drawable.bookcover_sample, 1),
-            GroupCardItemRoomData("코딩 과학 동아리", 12, 15, true, 5, R.drawable.bookcover_sample, 1),
-            GroupCardItemRoomData("사회과학 인문 탐구", 8, 12, true, 4, R.drawable.bookcover_sample, 2)
-        )
-
-        // 인기 있는 독서 모임방
-        val popularRooms = listOf(
-            GroupCardItemRoomData("베스트셀러 토론방", 28, 30, true, 7, R.drawable.bookcover_sample, 0),
-            GroupCardItemRoomData("인기 소설 완독방", 25, 25, false, 5, R.drawable.bookcover_sample, 0),
-            GroupCardItemRoomData("트렌드 과학서 읽기", 20, 25, true, 10, R.drawable.bookcover_sample, 1),
-            GroupCardItemRoomData("화제의 경영서", 18, 20, true, 8, R.drawable.bookcover_sample, 2),
-            GroupCardItemRoomData("인기 철학서 모임", 15, 18, true, 12, R.drawable.bookcover_sample, 3),
-            GroupCardItemRoomData("예술서 베스트", 12, 15, true, 6, R.drawable.bookcover_sample, 4)
-        )
-
-        // 인플루언서, 작가 독서 모임방
-        val influencerRooms = listOf(
-            GroupCardItemRoomData("작가와 함께하는 독서방", 30, 30, false, 14, R.drawable.bookcover_sample, 0),
-            GroupCardItemRoomData("유명 북튜버와 읽기", 18, 20, true, 8, R.drawable.bookcover_sample, 2),
-            GroupCardItemRoomData("작가 초청 인문학방", 15, 20, true, 12, R.drawable.bookcover_sample, 3),
-            GroupCardItemRoomData("인플루언서 과학책", 22, 25, true, 9, R.drawable.bookcover_sample, 1),
-            GroupCardItemRoomData("유명작가 예술론", 16, 18, true, 11, R.drawable.bookcover_sample, 4)
-        )
-
-        _roomSections.value = listOf(
-            GroupRoomSectionData(
-                title = "마감 임박한 독서 모임방",
-                rooms = deadlineRooms,
-                genres = _genres
-            ),
-            GroupRoomSectionData(
-                title = "인기 있는 독서 모임방",
-                rooms = popularRooms,
-                genres = _genres
-            ),
-            GroupRoomSectionData(
-                title = "인플루언서·작가 독서 모임방",
-                rooms = influencerRooms,
-                genres = _genres
-            )
-        )
+        loadInitialData()
     }
 
-    fun onMyGroupHeaderClick() {
-        // 내 모임방 리스트로 이동 (Nav 이벤트 트리거 등)
+    private fun loadInitialData() {
+        loadUserName()
+        loadMyGroups()
+        loadRoomSections()
+        loadDoneGroups()
+        loadMyRoomGroups()
+        loadSearchGroups()
     }
-
-    fun onMyGroupCardClick(data: GroupCardData) {
-        // 내 모임방 카드 클릭 (상세 진입)
+    
+    private fun loadUserName() {
+        viewModelScope.launch {
+            repository.getUserName()
+                .onSuccess { userName ->
+                    _userName.value = userName
+                }
+        }
     }
-
-    fun onRoomCardClick(data: GroupCardItemRoomData) {
-        // 방 카드 클릭 (상세 진입)
+    
+    private fun loadMyGroups() {
+        viewModelScope.launch {
+            repository.getMyGroups()
+                .onSuccess { groups ->
+                    _myGroups.value = groups
+                }
+        }
+    }
+    
+    private fun loadRoomSections() {
+        viewModelScope.launch {
+            repository.getRoomSections()
+                .onSuccess { sections ->
+                    _roomSections.value = sections
+                }
+        }
+    }
+    
+    private fun loadDoneGroups() {
+        viewModelScope.launch {
+            repository.getDoneGroups()
+                .onSuccess { groups ->
+                    _doneGroups.value = groups
+                }
+        }
+    }
+    
+    private fun loadMyRoomGroups() {
+        viewModelScope.launch {
+            repository.getMyRoomGroups()
+                .onSuccess { groups ->
+                    _myRoomGroups.value = groups
+                }
+        }
+    }
+    
+    private fun loadSearchGroups() {
+        viewModelScope.launch {
+            repository.getSearchGroups()
+                .onSuccess { groups ->
+                    _searchGroups.value = groups
+                }
+        }
+    }
+    
+    fun refreshGroupData() {
+        loadInitialData()
+    }
+    
+    
+    suspend fun getRoomDetail(roomId: Int): GroupRoomData? {
+        return repository.getRoomDetail(roomId).getOrNull()
     }
 
 }

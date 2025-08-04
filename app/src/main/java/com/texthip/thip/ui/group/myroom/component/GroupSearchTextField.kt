@@ -1,6 +1,7 @@
 package com.texthip.thip.ui.group.myroom.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,18 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,18 +27,11 @@ import com.texthip.thip.ui.theme.ThipTheme.typography
 @Composable
 fun GroupSearchTextField(
     modifier: Modifier = Modifier,
-    value: String,
     placeholder: String = stringResource(R.string.group_search_placeholder),
-    onValueChange: (String) -> Unit,
-    onClick: (() -> Unit)? = null
+    onClick: () -> Unit
 ) {
-    val textStyle = typography.menu_r400_s14_h24.copy(
-        lineHeight = 16.sp,
-        color = colors.White
-    )
     val shape = RoundedCornerShape(12.dp)
     val backgroundColor = colors.DarkGrey
-    val cursorColor = colors.NeonGreen
 
     Box(
         modifier
@@ -51,44 +39,29 @@ fun GroupSearchTextField(
             .fillMaxWidth()
             .height(40.dp)
             .clip(shape)
-            .background(backgroundColor),
+            .background(backgroundColor)
+            .clickable { onClick() },
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp)
         ) {
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                singleLine = true,
-                textStyle = textStyle,
-                cursorBrush = SolidColor(cursorColor),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 12.dp, end = 8.dp),
-                decorationBox = { innerTextField ->
-                    Box(contentAlignment = Alignment.CenterStart) {
-                        if (value.isEmpty()) {
-                            Text(
-                                text = placeholder,
-                                color = colors.Grey02,
-                                style = typography.menu_r400_s14_h24.copy(
-                                    fontSize = 14.sp,
-                                    lineHeight = 16.sp
-                                )
-                            )
-                        }
-                        innerTextField()
-                    }
-                }
+            Text(
+                text = placeholder,
+                color = colors.Grey02,
+                style = typography.menu_r400_s14_h24.copy(
+                    fontSize = 14.sp,
+                    lineHeight = 16.sp
+                ),
+                modifier = Modifier.weight(1f)
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_search),
                 contentDescription = "검색",
-                tint = colors.White,
-                modifier = Modifier
-                    .padding(end = 12.dp)
+                tint = colors.White
             )
         }
     }
@@ -97,9 +70,7 @@ fun GroupSearchTextField(
 @Preview(showBackground = true, backgroundColor = 0xFF000000, widthDp = 360)
 @Composable
 fun PreviewGroupSearchTextField() {
-    var value by remember { mutableStateOf("") }
     GroupSearchTextField(
-        value = value,
-        onValueChange = { value = it }
+        onClick = { }
     )
 }

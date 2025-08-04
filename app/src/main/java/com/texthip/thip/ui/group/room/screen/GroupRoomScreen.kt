@@ -39,7 +39,9 @@ import com.texthip.thip.ui.theme.ThipTheme.colors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroupRoomScreen() {
+fun GroupRoomScreen(
+    onBackClick: () -> Unit = {}
+) {
     val scrollState = rememberScrollState()
 
     var isBottomSheetVisible by remember { mutableStateOf(false) }
@@ -98,7 +100,7 @@ fun GroupRoomScreen() {
         }
 
         GradationTopAppBar(
-            onLeftClick = {},
+            onLeftClick = onBackClick,
             onRightClick = { isBottomSheetVisible = true },
         )
     }

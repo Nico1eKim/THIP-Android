@@ -36,7 +36,8 @@ fun GroupFilteredSearchResult(
     selectedGenreIndex: Int,
     onGenreSelect: (Int) -> Unit,
     resultCount: Int,
-    roomList: List<GroupCardItemRoomData>
+    roomList: List<GroupCardItemRoomData>,
+    onRoomClick: (GroupCardItemRoomData) -> Unit = {}
 ) {
     Column {
         GenreChipRow(
@@ -79,7 +80,8 @@ fun GroupFilteredSearchResult(
                         endDate = room.endDate,
                         imageRes = room.imageRes,
                         isWide = true,
-                        isSecret = room.isSecret
+                        isSecret = room.isSecret,
+                        onClick = { onRoomClick(room) }
                     )
                     if (index < roomList.size - 1) {
                         Spacer(
@@ -113,6 +115,7 @@ fun GroupFilteredSearchResultPreview() {
                 resultCount = 3,
                 roomList = listOf(
                     GroupCardItemRoomData(
+                        id = 1,
                         title = "해리포터 독서모임",
                         participants = 5,
                         maxParticipants = 10,
@@ -122,6 +125,7 @@ fun GroupFilteredSearchResultPreview() {
                         genreIndex = 1,
                         isSecret = false
                     ), GroupCardItemRoomData(
+                        id = 2,
                         title = "소설 읽기 모임",
                         participants = 8,
                         maxParticipants = 12,

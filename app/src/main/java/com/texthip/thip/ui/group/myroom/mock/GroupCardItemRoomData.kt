@@ -3,6 +3,7 @@ package com.texthip.thip.ui.group.myroom.mock
 import com.texthip.thip.R
 
 data class GroupCardItemRoomData(
+    val id: Int,
     val title: String,
     val participants: Int,
     val maxParticipants: Int,

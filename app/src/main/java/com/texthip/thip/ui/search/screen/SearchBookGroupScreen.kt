@@ -145,6 +145,7 @@ fun GroupRecruitingScreenPreview() {
     ThipTheme {
         val dataList = listOf(
             GroupCardItemRoomData(
+                id = 1,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -153,6 +154,7 @@ fun GroupRecruitingScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 2,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -161,6 +163,7 @@ fun GroupRecruitingScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 3,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -169,6 +172,7 @@ fun GroupRecruitingScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 4,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -177,6 +181,7 @@ fun GroupRecruitingScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 5,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -185,6 +190,7 @@ fun GroupRecruitingScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 6,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -193,6 +199,7 @@ fun GroupRecruitingScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 7,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -201,6 +208,7 @@ fun GroupRecruitingScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 8,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,

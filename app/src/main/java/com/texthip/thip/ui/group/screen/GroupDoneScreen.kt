@@ -27,9 +27,8 @@ import com.texthip.thip.ui.theme.ThipTheme.typography
 fun GroupDoneScreen(
     name: String,
     allDataList: List<GroupCardItemRoomData>,
-    onCardClick: (GroupCardItemRoomData) -> Unit = {}
+    onNavigateBack: () -> Unit = {}
 ) {
-    // isRecruiting == false 인 방만 필터링 (혹시 몰라서 넣어둡니다)
     val doneList = remember(allDataList) {
         allDataList.filter { !it.isRecruiting }
     }
@@ -40,7 +39,7 @@ fun GroupDoneScreen(
     ) {
         DefaultTopAppBar(
             title = stringResource(R.string.group_done_title),
-            onLeftClick = {},
+            onLeftClick = onNavigateBack,
         )
         Column(
             Modifier
@@ -72,7 +71,7 @@ fun GroupDoneScreen(
                         maxParticipants = item.maxParticipants,
                         isRecruiting = item.isRecruiting,
                         imageRes = item.imageRes,
-                        onClick = { onCardClick(item) }
+                        onClick = { /* 완료된 모임방은 클릭 불가 */ }
                     )
                 }
             }
@@ -82,12 +81,13 @@ fun GroupDoneScreen(
 
 
 
-@Preview()
+@Preview
 @Composable
 fun MyGroupListFilterScreenPreview() {
     ThipTheme {
         val dataList = listOf(
             GroupCardItemRoomData(
+                id = 1,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -95,6 +95,7 @@ fun MyGroupListFilterScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 2,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -102,6 +103,7 @@ fun MyGroupListFilterScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 3,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -109,6 +111,7 @@ fun MyGroupListFilterScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 4,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -116,6 +119,7 @@ fun MyGroupListFilterScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 5,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,
@@ -123,6 +127,7 @@ fun MyGroupListFilterScreenPreview() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 6,
                 title = "모임방 이름입니다. 모임방...",
                 participants = 22,
                 maxParticipants = 30,

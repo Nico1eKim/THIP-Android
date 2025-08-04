@@ -189,6 +189,7 @@ fun PreviewGroupRoomPagerSection() {
         // 마감 임박한 독서 모임방
         val deadlineRooms = listOf(
             GroupCardItemRoomData(
+                id = 1,
                 title = "시집만 읽는 사람들 3월",
                 participants = 22,
                 maxParticipants = 30,
@@ -197,6 +198,7 @@ fun PreviewGroupRoomPagerSection() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 2,
                 title = "일본 소설 좋아하는 사람들",
                 participants = 15,
                 maxParticipants = 20,
@@ -205,6 +207,7 @@ fun PreviewGroupRoomPagerSection() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 3,
                 title = "명작 같이 읽기방",
                 participants = 22,
                 maxParticipants = 30,
@@ -213,6 +216,7 @@ fun PreviewGroupRoomPagerSection() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 4,
                 title = "명작 같이 읽기방",
                 participants = 22,
                 maxParticipants = 30,
@@ -221,6 +225,7 @@ fun PreviewGroupRoomPagerSection() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 5,
                 title = "물리책 읽는 방",
                 participants = 13,
                 maxParticipants = 20,
@@ -233,6 +238,7 @@ fun PreviewGroupRoomPagerSection() {
         // 인기 있는 독서 모임방
         val popularRooms = listOf(
             GroupCardItemRoomData(
+                id = 6,
                 title = "베스트셀러 토론방",
                 participants = 28,
                 maxParticipants = 30,
@@ -241,6 +247,7 @@ fun PreviewGroupRoomPagerSection() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 7,
                 title = "인기 소설 완독방",
                 participants = 25,
                 maxParticipants = 25,
@@ -249,6 +256,7 @@ fun PreviewGroupRoomPagerSection() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 8,
                 title = "트렌드 과학서 읽기",
                 participants = 20,
                 maxParticipants = 25,
@@ -261,6 +269,7 @@ fun PreviewGroupRoomPagerSection() {
         // 인플루언서, 작가 독서 모임방
         val influencerRooms = listOf(
             GroupCardItemRoomData(
+                id = 9,
                 title = "작가와 함께하는 독서방",
                 participants = 30,
                 maxParticipants = 30,
@@ -269,6 +278,7 @@ fun PreviewGroupRoomPagerSection() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 10,
                 title = "유명 북튜버와 읽기",
                 participants = 18,
                 maxParticipants = 20,
@@ -277,6 +287,7 @@ fun PreviewGroupRoomPagerSection() {
                 genreIndex = 2
             ),
             GroupCardItemRoomData(
+                id = 11,
                 title = "작가 초청 인문학방",
                 participants = 15,
                 maxParticipants = 20,
@@ -320,6 +331,7 @@ fun PreviewGroupRoomPagerSectionEmptyGenre() {
         // 특정 장르에만 데이터가 있는 경우 (문학 장르만 데이터 존재)
         val deadlineRooms = listOf(
             GroupCardItemRoomData(
+                id = 12,
                 title = "시집만 읽는 사람들 3월",
                 participants = 22,
                 maxParticipants = 30,

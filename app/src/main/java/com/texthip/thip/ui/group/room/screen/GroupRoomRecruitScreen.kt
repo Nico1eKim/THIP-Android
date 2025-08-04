@@ -436,6 +436,7 @@ fun GroupRoomRecruitScreenPreviewJoin() {
     ThipTheme {
         val recommendations = listOf(
             GroupCardItemRoomData(
+                id = 1,
                 title = "일본 소설 좋아하는 사람들 일본 소설 좋아하는 사람들",
                 participants = 19,
                 maxParticipants = 25,
@@ -444,6 +445,7 @@ fun GroupRoomRecruitScreenPreviewJoin() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 2,
                 title = "일본 소설 좋아하는 사람들 일본 소설 좋아하는 사람들",
                 participants = 12,
                 maxParticipants = 16,
@@ -452,6 +454,7 @@ fun GroupRoomRecruitScreenPreviewJoin() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 3,
                 title = "일본 소설 좋아하는 사람들 일본 소설 좋아하는 사람들",
                 participants = 30,
                 maxParticipants = 30,
@@ -460,6 +463,7 @@ fun GroupRoomRecruitScreenPreviewJoin() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 4,
                 title = "일본 소설 좋아하는 사람들 일본 소설 좋아하는 사람들",
                 participants = 10,
                 maxParticipants = 12,
@@ -468,6 +472,7 @@ fun GroupRoomRecruitScreenPreviewJoin() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 5,
                 title = "에세이 나눔방",
                 participants = 14,
                 maxParticipants = 20,
@@ -486,6 +491,7 @@ fun GroupRoomRecruitScreenPreviewJoin() {
         )
 
         val detailJoin = GroupRoomData(
+            id = 1,
             title = "시집만 읽는 사람들 3월",
             isSecret = true,
             description = "'시집만 읽는 사람들' 3월 모임입니다. 이번 달 모임에서는 심장보다 단단한 토마토 한 알을 함께 읽어요.",
@@ -517,6 +523,7 @@ fun GroupRoomRecruitScreenPreviewCancel() {
     ThipTheme {
         val recommendations = listOf(
             GroupCardItemRoomData(
+                id = 6,
                 title = "일본 소설 좋아하는 사람들 일본 소설 좋아하는 사람들",
                 participants = 19,
                 maxParticipants = 25,
@@ -525,6 +532,7 @@ fun GroupRoomRecruitScreenPreviewCancel() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 7,
                 title = "일본 소설 좋아하는 사람들 일본 소설 좋아하는 사람들",
                 participants = 12,
                 maxParticipants = 16,
@@ -533,6 +541,7 @@ fun GroupRoomRecruitScreenPreviewCancel() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 8,
                 title = "에세이 나눔방",
                 participants = 14,
                 maxParticipants = 20,
@@ -551,6 +560,7 @@ fun GroupRoomRecruitScreenPreviewCancel() {
         )
 
         val detailCancel = GroupRoomData(
+            id = 2,
             title = "시집만 읽는 사람들 3월",
             isSecret = true,
             description = "'시집만 읽는 사람들' 3월 모임입니다. 이번 달 모임에서는 심장보다 단단한 토마토 한 알을 함께 읽어요.",
@@ -582,6 +592,7 @@ fun GroupRoomRecruitScreenClose() {
     ThipTheme {
         val recommendations = listOf(
             GroupCardItemRoomData(
+                id = 9,
                 title = "일본 소설 좋아하는 사람들 일본 소설 좋아하는 사람들",
                 participants = 19,
                 maxParticipants = 25,
@@ -590,6 +601,7 @@ fun GroupRoomRecruitScreenClose() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 10,
                 title = "일본 소설 좋아하는 사람들 일본 소설 좋아하는 사람들",
                 participants = 12,
                 maxParticipants = 16,
@@ -598,6 +610,7 @@ fun GroupRoomRecruitScreenClose() {
                 genreIndex = 0
             ),
             GroupCardItemRoomData(
+                id = 11,
                 title = "미스터리 소설 탐구",
                 participants = 8,
                 maxParticipants = 15,
@@ -616,6 +629,7 @@ fun GroupRoomRecruitScreenClose() {
         )
 
         val detailClose = GroupRoomData(
+            id = 3,
             title = "시집만 읽는 사람들 3월",
             isSecret = false, // 오픈방으로 변경
             description = "'시집만 읽는 사람들' 3월 모임입니다. 이번 달 모임에서는 심장보다 단단한 토마토 한 알을 함께 읽어요. 모임장이 모집을 마감할 수 있는 상태입니다.",

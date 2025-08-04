@@ -1,5 +1,6 @@
 package com.texthip.thip.ui.search.screen
 
+import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,20 +19,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.texthip.thip.R
-import com.texthip.thip.ui.search.component.SearchEmptyResult
-import com.texthip.thip.ui.search.component.SearchBookFilteredResult
-import com.texthip.thip.ui.search.component.SearchActiveField
-import com.texthip.thip.ui.search.component.SearchRecentBook
-import com.texthip.thip.ui.search.mock.BookData
 import com.texthip.thip.ui.common.forms.SearchBookTextField
 import com.texthip.thip.ui.common.topappbar.LeftNameTopAppBar
+import com.texthip.thip.ui.search.component.SearchActiveField
+import com.texthip.thip.ui.search.component.SearchBookFilteredResult
+import com.texthip.thip.ui.search.component.SearchEmptyResult
+import com.texthip.thip.ui.search.component.SearchRecentBook
+import com.texthip.thip.ui.search.mock.BookData
 import com.texthip.thip.ui.theme.ThipTheme
+import kotlinx.serialization.json.Json
+import androidx.core.content.edit
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
 
 @Composable
 fun SearchBookScreen(
@@ -40,8 +46,32 @@ fun SearchBookScreen(
     bookList: List<BookData> = emptyList(),
     popularBooks: List<BookData> = emptyList()
 ) {
-    var recentSearches by rememberSaveable {
-        mutableStateOf(listOf("asd", "qwe", "xcv", "dfggfd", "asdasd", "gfhjghj"))
+    val context = LocalContext.current
+    val sharedPrefs = remember { 
+        context.getSharedPreferences("book_search_prefs", Context.MODE_PRIVATE) 
+    }
+
+    var recentSearches by remember {
+        mutableStateOf(
+            try {
+                val jsonString = sharedPrefs.getString("recent_book_searches", "[]") ?: "[]"
+                Json.decodeFromString<List<String>>(jsonString)
+            } catch (e: Exception) {
+                emptyList()
+            }
+        )
+    }
+
+    fun saveRecentSearches(searches: List<String>) {
+        try {
+            val jsonString = Json.encodeToString(ListSerializer(String.serializer()), searches)
+            sharedPrefs.edit {
+                putString("recent_book_searches", jsonString)
+            }
+            recentSearches = searches
+        } catch (e: Exception) {
+            recentSearches = emptyList()
+        }
     }
     var searchText by rememberSaveable { mutableStateOf("") }
     var isSearched by rememberSaveable { mutableStateOf(false) }
@@ -107,7 +137,8 @@ fun SearchBookScreen(
                     },
                     onSearch = { query ->
                         if (query.isNotBlank() && !recentSearches.contains(query)) {
-                            recentSearches = listOf(query) + recentSearches
+                            val newSearches = listOf(query) + recentSearches.take(9) // 최대 10개 유지
+                            saveRecentSearches(newSearches)
                         }
                         isSearched = true
                     }
@@ -125,7 +156,8 @@ fun SearchBookScreen(
                                 isSearched = true
                             },
                             onRemove = { keyword ->
-                                recentSearches = recentSearches.filterNot { it == keyword }
+                                val updatedSearches = recentSearches.filterNot { it == keyword }
+                                saveRecentSearches(updatedSearches)
                             },
                             onBookClick = { book ->
                                 // 책 클릭 시 처리

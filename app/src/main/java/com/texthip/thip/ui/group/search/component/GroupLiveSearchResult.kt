@@ -21,7 +21,8 @@ import com.texthip.thip.ui.theme.ThipTheme.colors
 
 @Composable
 fun GroupLiveSearchResult(
-    roomList: List<GroupCardItemRoomData>
+    roomList: List<GroupCardItemRoomData>,
+    onRoomClick: (GroupCardItemRoomData) -> Unit = {}
 ) {
     LazyColumn {
         itemsIndexed(roomList) { index, room ->
@@ -32,7 +33,8 @@ fun GroupLiveSearchResult(
                 endDate = room.endDate,
                 imageRes = room.imageRes,
                 isWide = true,
-                isSecret = room.isSecret
+                isSecret = room.isSecret,
+                onClick = { onRoomClick(room) }
             )
             if (index < roomList.size - 1) {
                 Spacer(
@@ -58,6 +60,7 @@ fun GroupLiveSearchResultPreview() {
             GroupLiveSearchResult(
                 roomList = listOf(
                     GroupCardItemRoomData(
+                        id = 1,
                         title = "해리포터 독서모임",
                         participants = 5,
                         maxParticipants = 10,
@@ -68,6 +71,7 @@ fun GroupLiveSearchResultPreview() {
                         isSecret = false
                     ),
                     GroupCardItemRoomData(
+                        id = 2,
                         title = "소설 읽기 모임",
                         participants = 8,
                         maxParticipants = 12,
@@ -78,6 +82,7 @@ fun GroupLiveSearchResultPreview() {
                         isSecret = true
                     ),
                     GroupCardItemRoomData(
+                        id = 3,
                         title = "비즈니스 서적 스터디",
                         participants = 3,
                         maxParticipants = 8,
