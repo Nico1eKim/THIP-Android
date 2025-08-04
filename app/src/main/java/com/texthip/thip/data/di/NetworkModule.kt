@@ -2,6 +2,7 @@ package com.texthip.thip.data.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.texthip.thip.BuildConfig
+import com.texthip.thip.utils.auth.AuthInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,7 +35,7 @@ object NetworkModule {
     @Singleton
     fun providesOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
-//        authInterceptor: AuthInterceptor,
+        authInterceptor: AuthInterceptor,
 //        authAuthenticator: TokenAuthenticator
     ): OkHttpClient =
         OkHttpClient.Builder().apply {
@@ -42,7 +43,7 @@ object NetworkModule {
             writeTimeout(10, TimeUnit.SECONDS)
             readTimeout(10, TimeUnit.SECONDS)
             addInterceptor(loggingInterceptor)
-//            addInterceptor(authInterceptor)
+            addInterceptor(authInterceptor)
 //            authenticator(authAuthenticator)
         }.build()
 
