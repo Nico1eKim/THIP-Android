@@ -8,13 +8,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
 import com.texthip.thip.data.manager.AuthStateManager
 import com.texthip.thip.data.manager.TokenManager
 import com.texthip.thip.ui.navigator.navigations.authNavigation
@@ -140,6 +146,25 @@ fun RootNavHost(
     notificationData: MainActivity.NotificationData? = null
 ) {
     val navController = rememberNavController()
+    val firebaseAnalytics = Firebase.analytics
+
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            // 목적지의 route가 null이 아닐 경우에만 이벤트를 로깅
+            destination.route?.let { route ->
+                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                    param(FirebaseAnalytics.Param.SCREEN_NAME, route)
+                    param(FirebaseAnalytics.Param.SCREEN_CLASS, route)
+                }
+                Log.d("GA_Tracker", "Screen viewed: $route")
+            }
+        }
+        navController.addOnDestinationChangedListener(listener)
+
+        onDispose {
+            navController.removeOnDestinationChangedListener(listener)
+        }
+    }
 
     LaunchedEffect(Unit) {
         authStateManager.tokenExpiredEvent.collectLatest {

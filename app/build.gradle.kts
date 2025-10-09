@@ -28,7 +28,7 @@ android {
         applicationId = "com.texthip.thip"
         minSdk = 29
         targetSdk = 35
-        versionCode = 10
+        versionCode = 9
         versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -139,6 +139,9 @@ dependencies {
     implementation("androidx.credentials:credentials:1.2.2")
     implementation("androidx.credentials:credentials-play-services-auth:1.2.2")
 
+    // Firebase analytics
+    implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
+    implementation("com.google.firebase:firebase-analytics")
 }
 
 kapt {
