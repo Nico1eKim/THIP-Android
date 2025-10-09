@@ -133,6 +133,7 @@ fun FeedOthersContent(
                         Spacer(modifier = Modifier.height(16.dp))
                         FeedSubscribeBarlist(
                             modifier = Modifier.padding(horizontal = 20.dp),
+                            followerNum = userInfo.followerCount,
                             followerProfileImageUrls = userInfo.latestFollowerProfileImageUrls,
                             onClick = { onNavigateToSubscriptionList(userInfo.creatorId) }
                         )
