@@ -32,9 +32,9 @@ import com.texthip.thip.R
 import com.texthip.thip.data.model.rooms.response.JoinedRoomResponse
 import com.texthip.thip.data.model.rooms.response.RoomMainList
 import com.texthip.thip.data.model.rooms.response.RoomMainResponse
+import com.texthip.thip.ui.common.alarmpage.viewmodel.AlarmViewModel
 import com.texthip.thip.ui.common.buttons.FloatingButton
 import com.texthip.thip.ui.common.modal.ToastWithDate
-import com.texthip.thip.ui.common.alarmpage.viewmodel.AlarmViewModel
 import com.texthip.thip.ui.common.topappbar.LogoTopAppBar
 import com.texthip.thip.ui.feed.component.EmptyMySubscriptionBar
 import com.texthip.thip.ui.group.myroom.component.GroupMySectionHeader
@@ -131,7 +131,7 @@ fun GroupContent(
 
                 // 검색창
                 GroupSearchTextField(
-                    modifier = Modifier.padding(top = 72.dp, bottom = 32.dp),
+                    modifier = Modifier.padding(top = 75.dp, bottom = 32.dp),
                     onClick = onNavigateToGroupSearch
                 )
 

@@ -23,9 +23,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import com.texthip.thip.R
 import com.texthip.thip.ui.common.forms.SearchBookTextField
 import com.texthip.thip.ui.common.topappbar.LeftNameTopAppBar
@@ -36,6 +33,9 @@ import com.texthip.thip.ui.search.component.SearchRecentBook
 import com.texthip.thip.ui.search.mock.BookData
 import com.texthip.thip.ui.search.viewmodel.SearchBookViewModel
 import com.texthip.thip.ui.theme.ThipTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun SearchBookScreen(
@@ -149,7 +149,7 @@ private fun SearchBookScreenContent(
             modifier = Modifier.fillMaxSize()
         ) {
             LeftNameTopAppBar(
-                title = stringResource(R.string.book_search_topappbar)
+                title = stringResource(R.string.nav_search)
             )
             Column(
                 modifier = Modifier

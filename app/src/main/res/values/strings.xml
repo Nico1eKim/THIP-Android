@@ -387,7 +387,6 @@
 
     <!--    book search   -->
     <string name="book_popular_search">가장 많이 검색된 책</string>
-    <string name="book_search_topappbar">검색</string>
     <string name="book_search_hint">책 제목, 작가명을 검색해보세요.</string>
     <string name="book_no_search_result1">현재 등록된 책이 없어요.</string>
     <string name="book_no_search_result2">원하는 책을 신청해주세요!</string>
