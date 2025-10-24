@@ -5,7 +5,7 @@ import com.texthip.thip.ui.group.myroom.mock.RoomType
 
 data class GroupMyUiState(
     val myRooms: List<MyRoomResponse> = emptyList(),
-    val currentRoomType: RoomType = RoomType.PLAYING_AND_RECRUITING,
+    val currentRoomType: RoomType = RoomType.ALL,
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val hasMore: Boolean = true,

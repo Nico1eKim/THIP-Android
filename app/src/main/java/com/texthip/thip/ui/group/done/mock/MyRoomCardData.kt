@@ -22,7 +22,7 @@ data class MyRoomsPaginationResult(
 fun MyRoomCardData.isRecruitingByType(): Boolean {
     return when (type) {
         RoomType.RECRUITING.value -> true
-        RoomType.PLAYING_AND_RECRUITING.value -> false
+        RoomType.ALL.value -> false
         RoomType.PLAYING.value -> false
         RoomType.EXPIRED.value -> false
         else -> false
