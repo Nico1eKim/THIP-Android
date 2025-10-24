@@ -165,10 +165,12 @@ fun NavGraphBuilder.groupNavigation(
             viewModel = groupMyViewModel,
             onCardClick = { room ->
                 val isRecruiting = room.type == RoomType.RECRUITING.value
+                val isExpired = (room.type == RoomType.EXPIRED.value)
+
                 if (isRecruiting) {
                     navController.navigateToGroupRecruit(room.roomId)
                 } else {
-                    navController.navigateToGroupRoom(room.roomId, isExpired = false)
+                    navController.navigateToGroupRoom(room.roomId, isExpired = isExpired)
                 }
             },
             onNavigateBack = {

@@ -175,6 +175,7 @@ fun GroupMyContent(
                                 endDate = room.endDate,
                                 imageUrl = room.bookImageUrl,
                                 isSecret = !room.isPublic,
+                                isExpired = (room.type == RoomType.EXPIRED.value),
                                 onClick = { onCardClick(room) }
                             )
                         }
