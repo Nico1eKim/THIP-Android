@@ -7,6 +7,7 @@ import com.texthip.thip.data.model.notification.request.NotificationCheckRequest
 import com.texthip.thip.data.model.notification.response.NotificationEnabledResponse
 import com.texthip.thip.data.model.notification.response.NotificationListResponse
 import com.texthip.thip.data.model.notification.response.NotificationCheckResponse
+import com.texthip.thip.data.model.notification.response.NotificationExistsUncheckedResponse
 import com.texthip.thip.data.model.base.BaseResponse
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -46,4 +47,7 @@ interface NotificationService {
     suspend fun checkNotification(
         @Body request: NotificationCheckRequest
     ): BaseResponse<NotificationCheckResponse>
+
+    @GET("notifications/exists-unchecked")
+    suspend fun existsUncheckedNotifications(): BaseResponse<NotificationExistsUncheckedResponse>
 }

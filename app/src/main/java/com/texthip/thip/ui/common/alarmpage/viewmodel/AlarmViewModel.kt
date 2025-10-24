@@ -31,19 +31,20 @@ class AlarmViewModel @Inject constructor(
     }
 
     init {
-        loadNotifications(reset = true)
+        checkUnreadNotifications()
 
         // Repository의 알림 업데이트 이벤트 구독
         viewModelScope.launch {
             repository.notificationUpdateFlow.collect { notificationId ->
                 updateNotificationAsRead(notificationId)
+                checkUnreadNotifications()
             }
         }
 
-        // 푸시 알림 도착 시 새로고침 이벤트 구독
+        // 푸시 알림 도착 시 아이콘 상태만 갱신
         viewModelScope.launch {
             repository.notificationRefreshFlow.collect {
-                refreshData()
+                checkUnreadNotifications()
             }
         }
     }
@@ -54,14 +55,14 @@ class AlarmViewModel @Inject constructor(
             loadJob?.cancel()
             loadJob = null
         }
-        
+
         // 중복 로드 방지 (reset이 아닌 경우에만)
         if (isLoadingData && !reset) return
         if (isLastPage && !reset) return
 
         // launch 전에 isLoadingData 선반영 (플리커 방지)
         isLoadingData = true
-        
+
         // UI 상태 즉시 반영
         if (reset) {
             updateState {
@@ -126,6 +127,7 @@ class AlarmViewModel @Inject constructor(
 
     fun refreshData() {
         loadNotifications(reset = true)
+        checkUnreadNotifications()
     }
 
     fun changeNotificationType(notificationType: NotificationType) {
@@ -160,5 +162,22 @@ class AlarmViewModel @Inject constructor(
             }
         }
         updateState { it.copy(notifications = updatedNotifications) }
+    }
+
+    fun checkUnreadNotifications() {
+        viewModelScope.launch {
+            repository.existsUncheckedNotifications()
+                .onSuccess { response ->
+                    response?.let {
+                        updateState { state ->
+                            state.copy(hasUnreadNotifications = it.exists)
+                        }
+                    }
+                }
+                .onFailure { exception ->
+                    // 에러 발생 시 기존 상태 유지 (로그만 남김)
+                    updateState { it.copy(error = exception.message) }
+                }
+        }
     }
 }

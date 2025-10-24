@@ -9,8 +9,8 @@ data class AlarmUiState(
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val hasMore: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
+    val hasUnreadNotifications: Boolean = false  // API에서 가져온 읽지 않은 알림 존재 여부
 ) {
     val canLoadMore: Boolean get() = !isLoading && !isLoadingMore && hasMore
-    val hasUnreadNotifications: Boolean get() = notifications.any { !it.isChecked }
 }
