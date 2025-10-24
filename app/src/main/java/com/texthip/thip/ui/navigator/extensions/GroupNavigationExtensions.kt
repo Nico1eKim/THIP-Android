@@ -33,11 +33,6 @@ fun NavHostController.navigateToGroupMakeRoomWithBook(
     )
 }
 
-// 완료된 모임방 목록으로 이동
-fun NavHostController.navigateToGroupDone() {
-    navigate(GroupRoutes.Done)
-}
-
 // 모임방 검색 화면으로 이동
 fun NavHostController.navigateToGroupSearch(viewAll: Boolean = false) {
     navigate(GroupRoutes.Search(viewAll = viewAll))

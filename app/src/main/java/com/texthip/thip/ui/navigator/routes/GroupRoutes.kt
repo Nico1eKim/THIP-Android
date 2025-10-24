@@ -16,9 +16,6 @@ sealed class GroupRoutes : Routes() {
     ) : GroupRoutes()
 
     @Serializable
-    data object Done : GroupRoutes()
-
-    @Serializable
     data class Search(val viewAll: Boolean = false) : GroupRoutes()
 
     @Serializable

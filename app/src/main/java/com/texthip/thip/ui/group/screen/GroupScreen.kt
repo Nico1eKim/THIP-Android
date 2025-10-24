@@ -51,7 +51,6 @@ import kotlinx.coroutines.delay
 @Composable
 fun GroupScreen(
     onNavigateToMakeRoom: () -> Unit = {},
-    onNavigateToGroupDone: () -> Unit = {}, // 완료된 화면으로 이동
     onNavigateToAlarm: () -> Unit = {}, // 알림 화면으로 이동
     onNavigateToGroupSearch: () -> Unit = {},   // 검색 화면으로 이동
     onNavigateToGroupMy: () -> Unit = {},   // 내 모임방 화면으로 이동
@@ -73,7 +72,6 @@ fun GroupScreen(
         uiState = uiState,
         hasUnreadNotifications = alarmUiState.hasUnreadNotifications,
         onNavigateToMakeRoom = onNavigateToMakeRoom,
-        onNavigateToGroupDone = onNavigateToGroupDone,
         onNavigateToAlarm = onNavigateToAlarm,
         onNavigateToGroupSearch = onNavigateToGroupSearch,
         onNavigateToGroupMy = onNavigateToGroupMy,
@@ -96,7 +94,6 @@ fun GroupContent(
     uiState: GroupUiState,
     hasUnreadNotifications: Boolean = false,
     onNavigateToMakeRoom: () -> Unit = {},
-    onNavigateToGroupDone: () -> Unit = {},
     onNavigateToAlarm: () -> Unit = {},
     onNavigateToGroupSearch: () -> Unit = {},
     onNavigateToGroupMy: () -> Unit = {},
@@ -189,9 +186,7 @@ fun GroupContent(
 
         // 상단바
         LogoTopAppBar(
-            leftIcon = painterResource(R.drawable.ic_done),
             hasNotification = hasUnreadNotifications,
-            onLeftClick = onNavigateToGroupDone,
             onRightClick = onNavigateToAlarm
         )
 
