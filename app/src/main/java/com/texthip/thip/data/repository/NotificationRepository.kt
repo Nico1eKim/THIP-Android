@@ -9,6 +9,7 @@ import com.texthip.thip.data.model.notification.request.NotificationCheckRequest
 import com.texthip.thip.data.model.notification.response.NotificationEnabledResponse
 import com.texthip.thip.data.model.notification.response.NotificationListResponse
 import com.texthip.thip.data.model.notification.response.NotificationCheckResponse
+import com.texthip.thip.data.model.notification.response.NotificationExistsUncheckedResponse
 import com.texthip.thip.data.service.NotificationService
 import com.texthip.thip.utils.auth.getAppScopeDeviceId
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -107,5 +108,12 @@ class NotificationRepository @Inject constructor(
 
     fun onNotificationReceived() {
         _notificationRefreshFlow.tryEmit(Unit)
+    }
+
+    suspend fun existsUncheckedNotifications(): Result<NotificationExistsUncheckedResponse?> {
+        return runCatching {
+            val response = notificationService.existsUncheckedNotifications()
+            response.handleBaseResponse().getOrNull()
+        }
     }
 }
