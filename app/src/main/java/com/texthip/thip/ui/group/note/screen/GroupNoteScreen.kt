@@ -217,6 +217,7 @@ fun GroupNoteContent(
     var postToPin by remember { mutableStateOf<PostList?>(null) }
     var showToast by remember { mutableStateOf(false) }
     var showAiReviewDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val isOverlayVisible =
         isCommentBottomSheetVisible || selectedPostForMenu != null || isPinDialogVisible || showDeleteDialog || showAiReviewDialog
     var postToDelete by remember { mutableStateOf<PostList?>(null) }
@@ -583,7 +584,12 @@ fun GroupNoteContent(
                         FabMenuItem(
                             icon = painterResource(R.drawable.ic_ai_book_review),
                             text = stringResource(R.string.create_ai_book_review),
-                            onClick = { showAiReviewDialog = true }
+                            onClick = {
+                                scope.launch {
+                                    onEvent(GroupNoteEvent.CheckAiUsage)
+                                    showAiReviewDialog = true
+                                }
+                            }
                         )
                     )
                 )
@@ -726,9 +732,9 @@ fun GroupNoteContent(
                 title = stringResource(R.string.ai_review_dialog_title),
                 description = stringResource(
                     R.string.ai_review_dialog_description,
-                    4,
-                    5
-                ), // TODO: 숫자 서버에서 받아오기
+                    uiState.recordReviewCount,
+                    uiState.recordCount
+                ),
                 onConfirm = {
                     onNavigateToAiReview()
                     showAiReviewDialog = false
