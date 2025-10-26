@@ -360,4 +360,12 @@ class RoomsRepository @Inject constructor(
             )
         ).handleBaseResponse().getOrThrow()
     }
+
+    suspend fun getRoomsAiUsage(
+        roomId: Int,
+    ) = runCatching {
+        roomsService.getRoomsAiUsage(
+            roomId = roomId,
+        ).handleBaseResponse().getOrThrow()
+    }
 }
