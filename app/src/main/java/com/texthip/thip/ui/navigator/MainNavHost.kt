@@ -1,5 +1,7 @@
 package com.texthip.thip.ui.navigator
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -19,7 +21,11 @@ fun MainNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MainTabRoutes.Feed
+        startDestination = MainTabRoutes.Feed,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None }
     ) {
         feedNavigation(
             navController = navController,

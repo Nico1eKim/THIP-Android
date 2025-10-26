@@ -237,7 +237,7 @@
     <string name="error_page_over">전체페이지를 초과할 수 없어요.</string>
     <string name="my_opinion_title">지금 읽은 그 부분, 어땠나요?</string>
     <string name="my_opinion_placeholder">...한 생각이 들었어요.🤔</string>
-    <string name="vote_title_placeholder">투표 내용을 20자 이내로 입력하세요.</string>
+    <string name="vote_title_placeholder">투표 제목을 20자 이내로 입력하세요.</string>
     <string name="vote_content_placeholder">항목을 20자 이내로 입력</string>
     <string name="add_content">항목 추가</string>
     <string name="condition_of_view_general_review">독서 진행도 80% 이상부터 총평을 볼 수 있어요.</string>
@@ -387,7 +387,6 @@
 
     <!--    book search   -->
     <string name="book_popular_search">가장 많이 검색된 책</string>
-    <string name="book_search_topappbar">검색</string>
     <string name="book_search_hint">책 제목, 작가명을 검색해보세요.</string>
     <string name="book_no_search_result1">현재 등록된 책이 없어요.</string>
     <string name="book_no_search_result2">원하는 책을 신청해주세요!</string>

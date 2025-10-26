@@ -10,7 +10,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.texthip.thip.ui.feed.viewmodel.FeedViewModel
-import com.texthip.thip.ui.group.done.screen.GroupDoneScreen
 import com.texthip.thip.ui.group.makeroom.screen.GroupMakeRoomScreen
 import com.texthip.thip.ui.group.makeroom.viewmodel.GroupMakeRoomViewModel
 import com.texthip.thip.ui.group.myroom.mock.RoomType
@@ -33,7 +32,6 @@ import com.texthip.thip.ui.group.viewmodel.GroupViewModel
 import com.texthip.thip.ui.navigator.extensions.navigateToAlarm
 import com.texthip.thip.ui.navigator.extensions.navigateToBookDetail
 import com.texthip.thip.ui.navigator.extensions.navigateToFeedWrite
-import com.texthip.thip.ui.navigator.extensions.navigateToGroupDone
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupMakeRoom
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupMy
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupNote
@@ -75,9 +73,6 @@ fun NavGraphBuilder.groupNavigation(
             viewModel = groupViewModel,
             onNavigateToMakeRoom = {
                 navController.navigateToGroupMakeRoom()
-            },
-            onNavigateToGroupDone = {
-                navController.navigateToGroupDone()
             },
             onNavigateToAlarm = {
                 navController.navigateToAlarm()
@@ -145,18 +140,6 @@ fun NavGraphBuilder.groupNavigation(
         )
     }
 
-    // Group Done 화면
-    composable<GroupRoutes.Done> {
-        GroupDoneScreen(
-            onRoomClick = { roomId ->
-                navController.navigateToGroupRoom(roomId, isExpired = true)
-            },
-            onNavigateBack = {
-                navigateBack()
-            }
-        )
-    }
-
     // Group My 화면
     composable<GroupRoutes.My> {
         val groupMyViewModel: GroupMyViewModel = hiltViewModel()
@@ -165,10 +148,12 @@ fun NavGraphBuilder.groupNavigation(
             viewModel = groupMyViewModel,
             onCardClick = { room ->
                 val isRecruiting = room.type == RoomType.RECRUITING.value
+                val isExpired = (room.type == RoomType.EXPIRED.value)
+
                 if (isRecruiting) {
                     navController.navigateToGroupRecruit(room.roomId)
                 } else {
-                    navController.navigateToGroupRoom(room.roomId, isExpired = false)
+                    navController.navigateToGroupRoom(room.roomId, isExpired = isExpired)
                 }
             },
             onNavigateBack = {

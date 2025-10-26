@@ -1,5 +1,6 @@
 package com.texthip.thip.ui.group.note.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -43,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.texthip.thip.R
-import com.texthip.thip.ui.feed.viewmodel.FeedViewModel
 import com.texthip.thip.data.model.rooms.response.PostList
 import com.texthip.thip.data.model.rooms.response.RoomsRecordsPinResponse
 import com.texthip.thip.ui.common.bottomsheet.MenuBottomSheet
@@ -54,6 +54,7 @@ import com.texthip.thip.ui.common.header.HeaderMenuBarTab
 import com.texthip.thip.ui.common.modal.DialogPopup
 import com.texthip.thip.ui.common.modal.ToastWithDate
 import com.texthip.thip.ui.common.topappbar.DefaultTopAppBar
+import com.texthip.thip.ui.feed.viewmodel.FeedViewModel
 import com.texthip.thip.ui.group.note.component.CommentBottomSheet
 import com.texthip.thip.ui.group.note.component.FilterHeaderSection
 import com.texthip.thip.ui.group.note.component.TextCommentCard
@@ -225,6 +226,22 @@ fun GroupNoteContent(
 
     val commentsViewModel: CommentsViewModel = hiltViewModel()
     val commentsUiState by commentsViewModel.uiState.collectAsStateWithLifecycle()
+
+    BackHandler(enabled = isOverlayVisible) {
+        if (isCommentBottomSheetVisible) {
+            isCommentBottomSheetVisible = false
+            selectedPostForComment = null
+            onEvent(GroupNoteEvent.RefreshPosts)
+        } else if (selectedPostForMenu != null) {
+            selectedPostForMenu = null
+        } else if (showDeleteDialog) {
+            showDeleteDialog = false
+            postToDelete = null
+        } else if (isPinDialogVisible) {
+            isPinDialogVisible = false
+            postToPin = null
+        }
+    }
 
     LaunchedEffect(showToast) {
         if (showToast) {

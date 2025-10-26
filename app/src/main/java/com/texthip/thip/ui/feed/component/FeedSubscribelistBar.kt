@@ -36,6 +36,7 @@ import com.texthip.thip.ui.theme.ThipTheme.typography
 @Composable
 fun FeedSubscribeBarlist(
     modifier: Modifier = Modifier,
+    followerNum: Int = 0,
     followerProfileImageUrls: List<String>,
     onClick: () -> Unit
 ) {
@@ -59,7 +60,8 @@ fun FeedSubscribeBarlist(
                         color = colors.White
                     )
                 ) {
-                    append(stringResource(R.string.thip_num, followerProfileImageUrls.size))                }
+                    append(stringResource(R.string.thip_num, followerNum))
+                }
                 withStyle(
                     style = SpanStyle(
                         color = colors.Grey
