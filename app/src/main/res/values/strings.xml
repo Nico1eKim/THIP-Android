@@ -44,9 +44,6 @@
     <string name="create_ai_book_review">AI 독서감상문 생성</string>
     <string name="edit_record">기록 수정</string>
     <string name="edit_vote">투표 수정</string>
-    <string name="ai_review_dialog_title">AI 독서감상문 생성 (Beta)</string>
-    <string name="ai_review_dialog_description">기록장에서 작성한 기록을 기반으로\n독서감상문을 생성하시겠어요?\n(서비스 내 잔여 이용횟수 : %d/%d)</string>
-
 
     <!--    카드 컴포넌트    -->
     <string name="time_ago">시간 전</string>
@@ -271,6 +268,9 @@
     <string name="ai_review_done_info">내 기록과 총평을 바탕으로 생성된 감상문입니다.</string>
     <string name="copy_to_clipboard">클립보드에 복사</string>
     <string name="copy_to_clipboard_done">클립보드에 복사가 완료되었어요</string>
+    <string name="ai_review_dialog_title">AI 독서감상문 생성 (Beta)</string>
+    <string name="ai_review_dialog_description">기록장에서 작성한 기록을 기반으로\n독서감상문을 생성하시겠어요?\n(서비스 내 잔여 이용횟수 : %d/%d)</string>
+    <string name="ai_review_exit_dialog_description">생성된 감상문은 다시 볼 수 없으며, 잔여 이용횟수는 차감돼요. 계속하시겠어요?</string>
 
     <!--    alarm    -->
     <string name="alarm_feed">피드</string>

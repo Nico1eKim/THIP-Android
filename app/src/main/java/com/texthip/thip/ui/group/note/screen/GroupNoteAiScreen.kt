@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
@@ -38,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.texthip.thip.R
+import com.texthip.thip.ui.common.modal.DialogPopup
 import com.texthip.thip.ui.common.modal.ToastWithDate
 import com.texthip.thip.ui.common.topappbar.DefaultTopAppBar
 import com.texthip.thip.ui.theme.ThipTheme
@@ -66,10 +68,11 @@ fun GroupNoteAiScreen(
     val clipboardManager = LocalClipboardManager.current
 
     var showToast by remember { mutableStateOf(false) }
+    var showExitDialog by remember { mutableStateOf(false) }
 
     // TODO: HiltViewModel을 사용해 실제 데이터 로직 구현
     LaunchedEffect(key1 = roomId) {
-        delay(3000) // 3초 딜레이 (네트워크 요청 시뮬레이션)
+        delay(3000)
         aiReviewText = DUMMY_AI_REVIEW
         isLoading = false
     }
@@ -77,7 +80,7 @@ fun GroupNoteAiScreen(
     LaunchedEffect(showToast) {
         if (showToast) {
             delay(3000L)
-            showToast = false // onHideToast() 역할
+            showToast = false
         }
     }
 
@@ -85,11 +88,14 @@ fun GroupNoteAiScreen(
         isLoading = isLoading,
         aiReviewText = aiReviewText,
         showToast = showToast,
-        onBackClick = onBackClick,
+        showExitDialog = showExitDialog,
+        onBackClick = { showExitDialog = true },
         onCopyClick = { text ->
             clipboardManager.setText(AnnotatedString(text))
             showToast = true
-        }
+        },
+        onConfirmExit = onBackClick,
+        onDismissExitDialog = { showExitDialog = false }
     )
 }
 
@@ -98,11 +104,20 @@ fun GroupNoteAiContent(
     isLoading: Boolean,
     aiReviewText: String?,
     showToast: Boolean = false,
+    showExitDialog: Boolean = false,
     onBackClick: () -> Unit,
-    onCopyClick: (String) -> Unit
+    onCopyClick: (String) -> Unit,
+    onConfirmExit: () -> Unit,
+    onDismissExitDialog: () -> Unit
 ) {
+    val isOverlayVisible = showExitDialog
+
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(if (isOverlayVisible) Modifier.blur(5.dp) else Modifier)
+        ) {
             DefaultTopAppBar(
                 title = stringResource(R.string.ai_book_review_title),
                 onLeftClick = onBackClick
@@ -185,6 +200,21 @@ fun GroupNoteAiContent(
             }
         }
 
+        if (showExitDialog) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                DialogPopup(
+                    title = stringResource(R.string.ai_review_dialog_title),
+                    description = stringResource(R.string.ai_review_exit_dialog_description),
+                    onConfirm = onConfirmExit,
+                    onCancel = onDismissExitDialog
+                )
+            }
+        }
+
         AnimatedVisibility(
             visible = showToast,
             enter = slideInVertically(
@@ -216,6 +246,8 @@ private fun GroupNoteAiScreenLoadingPreview() {
             aiReviewText = null,
             onBackClick = {},
             onCopyClick = {},
+            onConfirmExit = {},
+            onDismissExitDialog = {}
         )
     }
 }
@@ -228,7 +260,9 @@ private fun GroupNoteAiScreenDonePreview() {
             isLoading = false,
             aiReviewText = DUMMY_AI_REVIEW,
             onBackClick = {},
-            onCopyClick = {}
+            onCopyClick = {},
+            onConfirmExit = {},
+            onDismissExitDialog = {}
         )
     }
 }
