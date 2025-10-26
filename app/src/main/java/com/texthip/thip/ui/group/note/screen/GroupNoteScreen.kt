@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.texthip.thip.R
-import com.texthip.thip.ui.feed.viewmodel.FeedViewModel
 import com.texthip.thip.data.model.rooms.response.PostList
 import com.texthip.thip.data.model.rooms.response.RoomsRecordsPinResponse
 import com.texthip.thip.ui.common.bottomsheet.MenuBottomSheet
@@ -54,6 +53,7 @@ import com.texthip.thip.ui.common.header.HeaderMenuBarTab
 import com.texthip.thip.ui.common.modal.DialogPopup
 import com.texthip.thip.ui.common.modal.ToastWithDate
 import com.texthip.thip.ui.common.topappbar.DefaultTopAppBar
+import com.texthip.thip.ui.feed.viewmodel.FeedViewModel
 import com.texthip.thip.ui.group.note.component.CommentBottomSheet
 import com.texthip.thip.ui.group.note.component.FilterHeaderSection
 import com.texthip.thip.ui.group.note.component.TextCommentCard
@@ -213,8 +213,9 @@ fun GroupNoteContent(
     var isPinDialogVisible by remember { mutableStateOf(false) }
     var postToPin by remember { mutableStateOf<PostList?>(null) }
     var showToast by remember { mutableStateOf(false) }
+    var showAiReviewDialog by remember { mutableStateOf(false) }
     val isOverlayVisible =
-        isCommentBottomSheetVisible || selectedPostForMenu != null || isPinDialogVisible || showDeleteDialog
+        isCommentBottomSheetVisible || selectedPostForMenu != null || isPinDialogVisible || showDeleteDialog || showAiReviewDialog
     var postToDelete by remember { mutableStateOf<PostList?>(null) }
 
     var toastMessage by remember { mutableStateOf("") }
@@ -575,6 +576,11 @@ fun GroupNoteContent(
                             icon = painterResource(R.drawable.ic_vote),
                             text = stringResource(R.string.create_vote),
                             onClick = onCreateVoteClick
+                        ),
+                        FabMenuItem(
+                            icon = painterResource(R.drawable.ic_ai_book_review),
+                            text = stringResource(R.string.create_ai_book_review),
+                            onClick = { showAiReviewDialog = true }
                         )
                     )
                 )
@@ -702,6 +708,26 @@ fun GroupNoteContent(
                 onCancel = {
                     isPinDialogVisible = false
                     postToPin = null
+                }
+            )
+        }
+    }
+
+    if (showAiReviewDialog) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            DialogPopup(
+                title = stringResource(R.string.ai_review_dialog_title),
+                description = stringResource(R.string.ai_review_dialog_description, 4, 5), // TODO: 숫자 서버에서 받아오기
+                onConfirm = {
+//                    onNavigateToAiReview()
+                    showAiReviewDialog = false
+                },
+                onCancel = {
+                    showAiReviewDialog = false
                 }
             )
         }
