@@ -84,6 +84,7 @@ fun GroupNoteScreen(
     onEditVoteClick: (post: PostList) -> Unit = {},
     onNavigateToUserProfile: (userId: Long) -> Unit = {},
     onNavigateToMyProfile: () -> Unit = {},
+    onNavigateToAiReview: () -> Unit = {},
     resultTabIndex: Int? = null,
     onResultConsumed: () -> Unit = {},
     initialPage: Int? = null,
@@ -185,6 +186,7 @@ fun GroupNoteScreen(
                 onNavigateToUserProfile(userId)
             }
         },
+        onNavigateToAiReview = onNavigateToAiReview,
         showProgressBar = showProgressBar,
         progress = progress.value,
         openComments = openComments
@@ -202,6 +204,7 @@ fun GroupNoteContent(
     onEditNoteClick: (post: PostList) -> Unit,
     onEditVoteClick: (post: PostList) -> Unit,
     onNavigateToUserProfile: (userId: Long) -> Unit,
+    onNavigateToAiReview: () -> Unit,
     showProgressBar: Boolean,
     progress: Float,
     openComments: Boolean = false
@@ -721,9 +724,13 @@ fun GroupNoteContent(
         ) {
             DialogPopup(
                 title = stringResource(R.string.ai_review_dialog_title),
-                description = stringResource(R.string.ai_review_dialog_description, 4, 5), // TODO: 숫자 서버에서 받아오기
+                description = stringResource(
+                    R.string.ai_review_dialog_description,
+                    4,
+                    5
+                ), // TODO: 숫자 서버에서 받아오기
                 onConfirm = {
-//                    onNavigateToAiReview()
+                    onNavigateToAiReview()
                     showAiReviewDialog = false
                 },
                 onCancel = {
@@ -795,7 +802,8 @@ private fun GroupNoteScreenPreview() {
             progress = 0.5f,
             onNavigateToUserProfile = {},
             onEditNoteClick = {},
-            onEditVoteClick = {}
+            onEditVoteClick = {},
+            onNavigateToAiReview = {}
         )
     }
 }

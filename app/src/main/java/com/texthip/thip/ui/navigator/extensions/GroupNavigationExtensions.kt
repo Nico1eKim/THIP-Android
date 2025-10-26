@@ -158,3 +158,8 @@ fun NavHostController.navigateToGroupVoteCreate(
         )
     )
 }
+
+// AI 독후감 생성 화면으로 이동
+fun NavHostController.navigateToGroupNoteAi(roomId: Int) {
+    navigate(GroupRoutes.NoteAi(roomId = roomId))
+}

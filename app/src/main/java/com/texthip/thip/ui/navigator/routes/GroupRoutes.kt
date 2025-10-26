@@ -73,4 +73,7 @@ sealed class GroupRoutes : Routes() {
         val title: String? = null,
         val options: List<String>? = null
     )
+
+    @Serializable
+    data class NoteAi(val roomId: Int) : GroupRoutes()
 }
