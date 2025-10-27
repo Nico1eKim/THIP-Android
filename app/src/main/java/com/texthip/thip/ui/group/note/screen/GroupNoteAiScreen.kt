@@ -38,43 +38,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.texthip.thip.R
 import com.texthip.thip.ui.common.modal.DialogPopup
 import com.texthip.thip.ui.common.modal.ToastWithDate
 import com.texthip.thip.ui.common.topappbar.DefaultTopAppBar
+import com.texthip.thip.ui.group.note.viewmodel.GroupNoteAiUiState
+import com.texthip.thip.ui.group.note.viewmodel.GroupNoteAiViewModel
 import com.texthip.thip.ui.theme.ThipTheme
 import com.texthip.thip.ui.theme.ThipTheme.colors
 import com.texthip.thip.ui.theme.ThipTheme.typography
 import kotlinx.coroutines.delay
 
-private const val DUMMY_AI_REVIEW =
-    "레이 커즈와일의 마침내 특이점이 시작된다는 읽는 내내 머릿속이 폭발하는 느낌이었다. 인공지능, 나노기술, 생명공학이 동시에 발전해서 결국 인간의 지능과 기계를 융합하는 시대가 온다는 주장인데, 솔직히 처음엔 SF소설 같은 이야기로 느껴졌다. \n" +
-            "\n" +
-            "하지만 커즈와일이 데이터와 과학적 근거를 차근차근 쌓아가며 기술 발전이 기하급수적이라는 걸 보여줄 때는 설득력이 꽤 컸다. 특히 인간 수명 연장과 의식 업로드에 대한 부분은 조금 무섭기도 하고 설레기도 했다. \n" +
-            "\n" +
-            "이 책이 단순히 기술 낙관주의가 아니라, 우리가 맞이할 변화에 대해 어떤 윤리적 기준과 사회적 합의가 필요한지 고민하게 만든 점이 좋았다. 읽고 나니 ‘미래는 멀리 있지 않다’는 말이 실감났다. 당장 내가 AI를 어떻게 활용하고, 기술과 함께 어떻게 성장할지 스스로 계획을 세우고 싶어졌다. 띱에서 다른 사람들은 이 책을 읽고 어떤 생각을 했을지 궁금하다. \n" +
-            "\n" +
-            "레이 커즈와일의 마침내 특이점이 시작된다는 읽는 내내 머릿속이 폭발하는 느낌이었다. 인공지능, 나노기술, 생명공학이 동시에 발전해서 결국 인간의 지능과 기계를 융합하는 시대가 온다는 주장인데, 솔직히 처음엔 SF소설 같은 이야기로 느껴졌다. \n" +
-            "\n" +
-            "하지만 커즈와일이 데이터와 과학적 근거를 차근차근 쌓아가며 기술 발전이 기하급수적이라는 걸 보여줄 때는 설득력이 꽤 컸다. 특히 인간 수명 연장과 의식 업로드에 대한 부분은 조금 무섭기도 하고 설레기도 했다. 이 책이 단순히 기술 낙관주의가 아니라, 우리가 맞이할 변화에 대해 어떤 윤리적 기준과 사회적 합의가 필요한지 고민하게 만든 점이 좋았다. 읽고 나니 ‘미래는 멀리 있지 않다’는 말이 실감났다. 당장 내가 AI를 어떻게 활용하고, 기술과 함께 어떻게 성장할지 스스로 계획을 세우고 싶어졌다. 띱에서 다른 사람들은 이 책 읽고 어떤 생각을 했을지 궁금하다. 레이 커즈와일의 마침내 특이점이 시작된다는 읽는 내내 머릿속이 폭발하는 느낌이었다. 인공지능, 나노기술, 생명공학이 동시에 발전해서 결국 인간의 지능과 기계를 융합하는 시대가 온다는 주장인데, 솔직히 처음엔 SF소설 같은 이야기로 느껴졌다. 하지만 커즈와일이 데이터와 과학적 근거를 차근차근 쌓아가며 기술 발전이 기하급수적이라는 걸 보여줄 때는 설득력이 꽤 컸다. 특히 인간 수명 연장과 의식 업로드에 대한 부분은 조금 무섭기도 하고 설레기도 했다. 이 책이 단순히 기술 낙관주의가 아니라, 우리가 맞이할 변화에 대해 어떤 윤리적 기준과 사회적 합의가 필요한지 고민하게 만든 점이 좋았다. 읽고 나니 ‘미래는 멀리 있지 않다’는 말이 실감났다. 당장 내가 AI를 어떻게 활용하고, 기술과 함께 어떻게 성장할지 스스로 계획을 세우고 싶어졌다. 띱에서 다른 사람들은 이 책 읽고 어떤 생각을 했을지 궁금하다."
-
 @Composable
 fun GroupNoteAiScreen(
-    roomId: Int, // TODO: 이 roomId로 ViewModel에서 AI 독후감 요청
+    roomId: Int,
     onBackClick: () -> Unit,
+    viewModel: GroupNoteAiViewModel = hiltViewModel()
 ) {
-    var isLoading by remember { mutableStateOf(true) }
-    var aiReviewText by remember { mutableStateOf<String?>(null) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val clipboardManager = LocalClipboardManager.current
 
     var showToast by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
 
-    // TODO: HiltViewModel을 사용해 실제 데이터 로직 구현
     LaunchedEffect(key1 = roomId) {
-        delay(3000)
-        aiReviewText = DUMMY_AI_REVIEW
-        isLoading = false
+        viewModel.generateAiReview(roomId)
     }
 
     LaunchedEffect(showToast) {
@@ -85,8 +75,7 @@ fun GroupNoteAiScreen(
     }
 
     GroupNoteAiContent(
-        isLoading = isLoading,
-        aiReviewText = aiReviewText,
+        uiState = uiState,
         showToast = showToast,
         showExitDialog = showExitDialog,
         onBackClick = { showExitDialog = true },
@@ -101,8 +90,7 @@ fun GroupNoteAiScreen(
 
 @Composable
 fun GroupNoteAiContent(
-    isLoading: Boolean,
-    aiReviewText: String?,
+    uiState: GroupNoteAiUiState,
     showToast: Boolean = false,
     showExitDialog: Boolean = false,
     onBackClick: () -> Unit,
@@ -124,7 +112,7 @@ fun GroupNoteAiContent(
             )
 
             Box(modifier = Modifier.fillMaxSize()) {
-                if (isLoading) {
+                if (uiState.isLoading) {
                     // 로딩 중
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -147,7 +135,7 @@ fun GroupNoteAiContent(
                             textAlign = TextAlign.Center
                         )
                     }
-                } else if (aiReviewText != null) {
+                } else if (uiState.aiReviewText != null) {
                     // 로딩 완료
                     Column(
                         modifier = Modifier
@@ -174,7 +162,7 @@ fun GroupNoteAiContent(
                         }
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = aiReviewText,
+                            text = uiState.aiReviewText,
                             style = typography.feedcopy_r400_s14_h20,
                             color = colors.White
                         )
@@ -187,13 +175,27 @@ fun GroupNoteAiContent(
                             .fillMaxWidth()
                             .height(50.dp)
                             .background(colors.Purple)
-                            .clickable { onCopyClick(aiReviewText) },
+                            .clickable { onCopyClick(uiState.aiReviewText) },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = stringResource(R.string.copy_to_clipboard),
                             style = typography.smalltitle_sb600_s18_h24,
                             color = colors.White
+                        )
+                    }
+                } else if (uiState.error != null) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = uiState.error,
+                            style = typography.copy_r400_s14,
+                            color = colors.Grey,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
@@ -242,8 +244,7 @@ fun GroupNoteAiContent(
 private fun GroupNoteAiScreenLoadingPreview() {
     ThipTheme {
         GroupNoteAiContent(
-            isLoading = true,
-            aiReviewText = null,
+            uiState = GroupNoteAiUiState(isLoading = true),
             onBackClick = {},
             onCopyClick = {},
             onConfirmExit = {},
@@ -257,8 +258,7 @@ private fun GroupNoteAiScreenLoadingPreview() {
 private fun GroupNoteAiScreenDonePreview() {
     ThipTheme {
         GroupNoteAiContent(
-            isLoading = false,
-            aiReviewText = DUMMY_AI_REVIEW,
+            uiState = GroupNoteAiUiState(isLoading = false, aiReviewText = "레이 커즈와일의 마침내 특이점이 시작된다는 읽는 내내 머릿속이 폭발하는 느낌이었다. 인공지능, 나노기술, 생명공학이 동시에 발전해서 결국 인간의 지능과 기계를 융합하는 시대가 온다는 주장인데, 솔직히 처음엔 SF소설 같은 이야기로 느껴졌다."),
             onBackClick = {},
             onCopyClick = {},
             onConfirmExit = {},
