@@ -24,7 +24,7 @@ import com.texthip.thip.ui.theme.ThipTheme.colors
 @Composable
 fun LogoTopAppBar(
     modifier: Modifier = Modifier,
-    leftIcon: Painter,
+    leftIcon: Painter? = null,
     hasNotification: Boolean,
     onLeftClick: () -> Unit = {},
     onRightClick: () -> Unit = {}
@@ -56,12 +56,14 @@ fun LogoTopAppBar(
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = leftIcon,
-                contentDescription = "Left Icon",
-                tint = Color.Unspecified,
-                modifier = Modifier.clickable { onLeftClick() }
-            )
+            leftIcon?.let {
+                Icon(
+                    painter = it,
+                    contentDescription = "Left Icon",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.clickable { onLeftClick() }
+                )
+            }
             Icon(
                 painter = rightIcon,
                 contentDescription = "Right Icon",

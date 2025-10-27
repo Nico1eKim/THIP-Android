@@ -1,5 +1,6 @@
 package com.texthip.thip.ui.group.note.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -230,6 +231,22 @@ fun GroupNoteContent(
 
     val commentsViewModel: CommentsViewModel = hiltViewModel()
     val commentsUiState by commentsViewModel.uiState.collectAsStateWithLifecycle()
+
+    BackHandler(enabled = isOverlayVisible) {
+        if (isCommentBottomSheetVisible) {
+            isCommentBottomSheetVisible = false
+            selectedPostForComment = null
+            onEvent(GroupNoteEvent.RefreshPosts)
+        } else if (selectedPostForMenu != null) {
+            selectedPostForMenu = null
+        } else if (showDeleteDialog) {
+            showDeleteDialog = false
+            postToDelete = null
+        } else if (isPinDialogVisible) {
+            isPinDialogVisible = false
+            postToPin = null
+        }
+    }
 
     LaunchedEffect(showToast) {
         if (showToast) {

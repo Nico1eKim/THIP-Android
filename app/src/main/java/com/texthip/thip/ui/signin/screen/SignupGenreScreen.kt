@@ -53,6 +53,7 @@ fun SignupGenreScreen(
         onNextClick = viewModel::signup
     )
 }
+
 @Composable
 fun SignupGenreContent(
     uiState: SignupUiState,
@@ -81,6 +82,7 @@ fun SignupGenreContent(
             modifier = Modifier
                 .padding(horizontal = 20.dp)
                 .fillMaxWidth()
+                .weight(1f)
         ) {
             Text(
                 text = stringResource(R.string.select_genre),
@@ -107,7 +109,14 @@ fun SignupGenreContent(
                 userScrollEnabled = false,
             ) {
                 itemsIndexed(uiState.roleCards) { index, roleItem ->
+                    val modifier = if (index == uiState.roleCards.lastIndex) {
+                        Modifier.padding(bottom = 40.dp)
+                    } else {
+                        Modifier
+                    }
+
                     RoleCard(
+                        modifier = modifier,
                         genre = roleItem.genre,
                         role = roleItem.role,
                         imageUrl = roleItem.imageUrl,
