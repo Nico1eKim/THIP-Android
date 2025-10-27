@@ -19,6 +19,7 @@ import com.texthip.thip.data.model.rooms.response.RoomJoinResponse
 import com.texthip.thip.data.model.rooms.response.RoomMainList
 import com.texthip.thip.data.model.rooms.response.RoomRecruitingResponse
 import com.texthip.thip.data.model.rooms.response.RoomSecretRoomResponse
+import com.texthip.thip.data.model.rooms.response.RoomsAiReviewResponse
 import com.texthip.thip.data.model.rooms.response.RoomsAiUsageResponse
 import com.texthip.thip.data.model.rooms.response.RoomsBookPageResponse
 import com.texthip.thip.data.model.rooms.response.RoomsCreateDailyGreetingResponse
@@ -221,4 +222,9 @@ interface RoomsService {
     suspend fun getRoomsAiUsage(
         @Path("roomId") roomId: Int
     ): BaseResponse<RoomsAiUsageResponse>
+
+    @POST("rooms/{roomId}/record/ai-review")
+    suspend fun postRoomsAiReview(
+        @Path("roomId") roomId: Int
+    ): BaseResponse<RoomsAiReviewResponse>
 }

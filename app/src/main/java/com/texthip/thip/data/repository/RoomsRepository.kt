@@ -368,4 +368,12 @@ class RoomsRepository @Inject constructor(
             roomId = roomId,
         ).handleBaseResponse().getOrThrow()
     }
+
+    suspend fun postRoomsAiReview(
+        roomId: Int,
+    ) = runCatching {
+        roomsService.postRoomsAiReview(
+            roomId = roomId,
+        ).handleBaseResponse().getOrThrow()
+    }
 }
