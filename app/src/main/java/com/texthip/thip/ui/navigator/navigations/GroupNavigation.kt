@@ -15,6 +15,7 @@ import com.texthip.thip.ui.group.makeroom.viewmodel.GroupMakeRoomViewModel
 import com.texthip.thip.ui.group.myroom.mock.RoomType
 import com.texthip.thip.ui.group.myroom.screen.GroupMyScreen
 import com.texthip.thip.ui.group.myroom.viewmodel.GroupMyViewModel
+import com.texthip.thip.ui.group.note.screen.GroupNoteAiScreen
 import com.texthip.thip.ui.group.note.screen.GroupNoteCreateScreen
 import com.texthip.thip.ui.group.note.screen.GroupNoteScreen
 import com.texthip.thip.ui.group.note.screen.GroupVoteCreateScreen
@@ -35,6 +36,7 @@ import com.texthip.thip.ui.navigator.extensions.navigateToFeedWrite
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupMakeRoom
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupMy
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupNote
+import com.texthip.thip.ui.navigator.extensions.navigateToGroupNoteAi
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupNoteCreate
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupRecruit
 import com.texthip.thip.ui.navigator.extensions.navigateToGroupRoom
@@ -407,6 +409,9 @@ fun NavGraphBuilder.groupNavigation(
             onNavigateToMyProfile = {
                 navController.navigate(FeedRoutes.My)
             },
+            onNavigateToAiReview = {
+                navController.navigateToGroupNoteAi(roomId)
+            },
             viewModel = viewModel
         )
     }
@@ -459,6 +464,15 @@ fun NavGraphBuilder.groupNavigation(
                     ?.set("selected_tab_index", 1)
                 navigateBack()
             }
+        )
+    }
+
+    // AI 독후감 스크린
+    composable<GroupRoutes.NoteAi> { backStackEntry ->
+        val route = backStackEntry.toRoute<GroupRoutes.NoteAi>()
+        GroupNoteAiScreen(
+            roomId = route.roomId,
+            onBackClick = { navigateBack() }
         )
     }
 }

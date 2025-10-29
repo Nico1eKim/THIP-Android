@@ -85,6 +85,7 @@ fun GroupNoteScreen(
     onEditVoteClick: (post: PostList) -> Unit = {},
     onNavigateToUserProfile: (userId: Long) -> Unit = {},
     onNavigateToMyProfile: () -> Unit = {},
+    onNavigateToAiReview: () -> Unit = {},
     resultTabIndex: Int? = null,
     onResultConsumed: () -> Unit = {},
     initialPage: Int? = null,
@@ -186,6 +187,7 @@ fun GroupNoteScreen(
                 onNavigateToUserProfile(userId)
             }
         },
+        onNavigateToAiReview = onNavigateToAiReview,
         showProgressBar = showProgressBar,
         progress = progress.value,
         openComments = openComments
@@ -203,6 +205,7 @@ fun GroupNoteContent(
     onEditNoteClick: (post: PostList) -> Unit,
     onEditVoteClick: (post: PostList) -> Unit,
     onNavigateToUserProfile: (userId: Long) -> Unit,
+    onNavigateToAiReview: () -> Unit,
     showProgressBar: Boolean,
     progress: Float,
     openComments: Boolean = false
@@ -214,8 +217,10 @@ fun GroupNoteContent(
     var isPinDialogVisible by remember { mutableStateOf(false) }
     var postToPin by remember { mutableStateOf<PostList?>(null) }
     var showToast by remember { mutableStateOf(false) }
+    var showAiReviewDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val isOverlayVisible =
-        isCommentBottomSheetVisible || selectedPostForMenu != null || isPinDialogVisible || showDeleteDialog
+        isCommentBottomSheetVisible || selectedPostForMenu != null || isPinDialogVisible || showDeleteDialog || showAiReviewDialog
     var postToDelete by remember { mutableStateOf<PostList?>(null) }
 
     var toastMessage by remember { mutableStateOf("") }
@@ -592,6 +597,16 @@ fun GroupNoteContent(
                             icon = painterResource(R.drawable.ic_vote),
                             text = stringResource(R.string.create_vote),
                             onClick = onCreateVoteClick
+                        ),
+                        FabMenuItem(
+                            icon = painterResource(R.drawable.ic_ai_book_review),
+                            text = stringResource(R.string.create_ai_book_review),
+                            onClick = {
+                                scope.launch {
+                                    onEvent(GroupNoteEvent.CheckAiUsage)
+                                    showAiReviewDialog = true
+                                }
+                            }
                         )
                     )
                 )
@@ -724,6 +739,30 @@ fun GroupNoteContent(
         }
     }
 
+    if (showAiReviewDialog) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            DialogPopup(
+                title = stringResource(R.string.ai_review_dialog_title),
+                description = stringResource(
+                    R.string.ai_review_dialog_description,
+                    uiState.recordCount,
+                    5
+                ),
+                onConfirm = {
+                    onNavigateToAiReview()
+                    showAiReviewDialog = false
+                },
+                onCancel = {
+                    showAiReviewDialog = false
+                }
+            )
+        }
+    }
+
     AnimatedVisibility(
         modifier = Modifier
             .padding(horizontal = 20.dp, vertical = 16.dp),
@@ -786,7 +825,8 @@ private fun GroupNoteScreenPreview() {
             progress = 0.5f,
             onNavigateToUserProfile = {},
             onEditNoteClick = {},
-            onEditVoteClick = {}
+            onEditVoteClick = {},
+            onNavigateToAiReview = {}
         )
     }
 }
