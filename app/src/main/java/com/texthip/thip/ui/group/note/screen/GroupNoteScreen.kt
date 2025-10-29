@@ -749,8 +749,8 @@ fun GroupNoteContent(
                 title = stringResource(R.string.ai_review_dialog_title),
                 description = stringResource(
                     R.string.ai_review_dialog_description,
-                    uiState.recordReviewCount,
-                    uiState.recordCount
+                    uiState.recordCount,
+                    5
                 ),
                 onConfirm = {
                     onNavigateToAiReview()
