@@ -18,7 +18,7 @@ class TokenManager @Inject constructor(
     companion object {
         private val APP_TOKEN_KEY = stringPreferencesKey("app_token") // 정식 액세스토큰
         private val TEMP_TOKEN_KEY = stringPreferencesKey("temp_token") // 임시 토큰
-        private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
+        //private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
     }
 
     // ====== 정식 토큰 ======
@@ -54,13 +54,13 @@ class TokenManager @Inject constructor(
     }
 
     // ====== Refresh 토큰 (추후 확장용) ======
-    suspend fun saveRefreshToken(token: String) {
+    /*suspend fun saveRefreshToken(token: String) {
         dataStore.edit { prefs -> prefs[REFRESH_TOKEN_KEY] = token }
     }
 
     suspend fun getRefreshTokenOnce(): String? {
         return dataStore.data.map { prefs -> prefs[REFRESH_TOKEN_KEY] }.first()
-    }
+    }*/
 
     suspend fun clearTokens() {
         dataStore.edit { prefs -> prefs.clear() }

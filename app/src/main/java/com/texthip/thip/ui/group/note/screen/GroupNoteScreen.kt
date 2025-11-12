@@ -1,5 +1,6 @@
 package com.texthip.thip.ui.group.note.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -53,6 +54,7 @@ import com.texthip.thip.ui.common.header.HeaderMenuBarTab
 import com.texthip.thip.ui.common.modal.DialogPopup
 import com.texthip.thip.ui.common.modal.ToastWithDate
 import com.texthip.thip.ui.common.topappbar.DefaultTopAppBar
+import com.texthip.thip.ui.feed.viewmodel.FeedViewModel
 import com.texthip.thip.ui.group.note.component.CommentBottomSheet
 import com.texthip.thip.ui.group.note.component.FilterHeaderSection
 import com.texthip.thip.ui.group.note.component.TextCommentCard
@@ -74,6 +76,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun GroupNoteScreen(
     roomId: Int,
+    isExpired: Boolean = false,
     onBackClick: () -> Unit = {},
     onCreateNoteClick: (recentPage: Int, totalPage: Int, isOverviewPossible: Boolean) -> Unit,
     onCreateVoteClick: (recentPage: Int, totalPage: Int, isOverviewPossible: Boolean) -> Unit,
@@ -81,14 +84,30 @@ fun GroupNoteScreen(
     onEditNoteClick: (post: PostList) -> Unit = {},
     onEditVoteClick: (post: PostList) -> Unit = {},
     onNavigateToUserProfile: (userId: Long) -> Unit = {},
+    onNavigateToMyProfile: () -> Unit = {},
+    onNavigateToAiReview: () -> Unit = {},
     resultTabIndex: Int? = null,
     onResultConsumed: () -> Unit = {},
     initialPage: Int? = null,
     initialIsOverview: Boolean? = null,
+    initialPostId: Int? = null,
+    openComments: Boolean = false,
     viewModel: GroupNoteViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+
+    // FeedViewModel을 통해 현재 사용자 정보 가져오기
+    val feedViewModel: FeedViewModel = hiltViewModel()
+    val feedUiState by feedViewModel.uiState.collectAsStateWithLifecycle()
+    val currentUserId = feedUiState.myFeedInfo?.creatorId
+
+    // 내 피드 정보가 없으면 로드
+    LaunchedEffect(Unit) {
+        if (feedUiState.myFeedInfo == null) {
+            feedViewModel.onTabSelected(1)
+        }
+    }
 
     var showProgressBar by remember { mutableStateOf(false) }
     val progress = remember { Animatable(0f) }
@@ -127,7 +146,7 @@ fun GroupNoteScreen(
     LaunchedEffect(key1 = roomId) {
         // 기록 생성 후 돌아온 경우가 아닐 때 (처음 진입 시) 초기화
         if (resultTabIndex == null) {
-            viewModel.initialize(roomId, initialPage, initialIsOverview)
+            viewModel.initialize(roomId, initialPage, initialIsOverview, initialPostId)
         }
     }
 
@@ -144,6 +163,7 @@ fun GroupNoteScreen(
     GroupNoteContent(
         uiState = uiState,
         onEvent = viewModel::onEvent,
+        isExpired = isExpired,
         onBackClick = onBackClick,
         onCreateNoteClick = {
             uiState.let { s ->
@@ -157,15 +177,27 @@ fun GroupNoteScreen(
         },
         onEditNoteClick = onEditNoteClick,
         onEditVoteClick = onEditVoteClick,
-        onNavigateToUserProfile = onNavigateToUserProfile,
+        onNavigateToUserProfile = { userId ->
+            // 현재 사용자 ID와 비교하여 적절한 네비게이션 수행
+            if (currentUserId != null && currentUserId == userId) {
+                // 내 프로필로 이동
+                onNavigateToMyProfile()
+            } else {
+                // 다른 사용자 프로필로 이동
+                onNavigateToUserProfile(userId)
+            }
+        },
+        onNavigateToAiReview = onNavigateToAiReview,
         showProgressBar = showProgressBar,
-        progress = progress.value
+        progress = progress.value,
+        openComments = openComments
     )
 }
 
 @Composable
 fun GroupNoteContent(
     uiState: GroupNoteUiState,
+    isExpired: Boolean = false,
     onEvent: (GroupNoteEvent) -> Unit,
     onBackClick: () -> Unit,
     onCreateNoteClick: () -> Unit,
@@ -173,8 +205,10 @@ fun GroupNoteContent(
     onEditNoteClick: (post: PostList) -> Unit,
     onEditVoteClick: (post: PostList) -> Unit,
     onNavigateToUserProfile: (userId: Long) -> Unit,
+    onNavigateToAiReview: () -> Unit,
     showProgressBar: Boolean,
-    progress: Float
+    progress: Float,
+    openComments: Boolean = false
 ) {
     var isCommentBottomSheetVisible by remember { mutableStateOf(false) }
     var selectedPostForComment by remember { mutableStateOf<PostList?>(null) }
@@ -183,16 +217,36 @@ fun GroupNoteContent(
     var isPinDialogVisible by remember { mutableStateOf(false) }
     var postToPin by remember { mutableStateOf<PostList?>(null) }
     var showToast by remember { mutableStateOf(false) }
+    var showAiReviewDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     val isOverlayVisible =
-        isCommentBottomSheetVisible || selectedPostForMenu != null || isPinDialogVisible || showDeleteDialog
+        isCommentBottomSheetVisible || selectedPostForMenu != null || isPinDialogVisible || showDeleteDialog || showAiReviewDialog
     var postToDelete by remember { mutableStateOf<PostList?>(null) }
 
     var toastMessage by remember { mutableStateOf("") }
     var isErrorToast by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
+    val expiredRoomMessage = stringResource(R.string.expired_room_read_only_message)
+
     val commentsViewModel: CommentsViewModel = hiltViewModel()
     val commentsUiState by commentsViewModel.uiState.collectAsStateWithLifecycle()
+
+    BackHandler(enabled = isOverlayVisible) {
+        if (isCommentBottomSheetVisible) {
+            isCommentBottomSheetVisible = false
+            selectedPostForComment = null
+            onEvent(GroupNoteEvent.RefreshPosts)
+        } else if (selectedPostForMenu != null) {
+            selectedPostForMenu = null
+        } else if (showDeleteDialog) {
+            showDeleteDialog = false
+            postToDelete = null
+        } else if (isPinDialogVisible) {
+            isPinDialogVisible = false
+            postToPin = null
+        }
+    }
 
     LaunchedEffect(showToast) {
         if (showToast) {
@@ -222,6 +276,52 @@ fun GroupNoteContent(
     LaunchedEffect(isScrolledToEnd) {
         if (isScrolledToEnd) {
             onEvent(GroupNoteEvent.LoadMorePosts)
+        }
+    }
+
+    // 특정 포스트로 스크롤
+    LaunchedEffect(uiState.scrollToPostId, uiState.posts, uiState.isLoading) {
+        val scrollToPostId = uiState.scrollToPostId
+
+        if (scrollToPostId != null && uiState.posts.isNotEmpty() && !uiState.isLoading) {
+            val targetIndex = uiState.posts.indexOfFirst { it.postId == scrollToPostId }
+
+            if (targetIndex != -1) {
+                val targetPost = uiState.posts[targetIndex]
+
+                // 헤더 아이템들을 고려한 실제 인덱스 계산
+                val actualIndex = if (uiState.selectedTabIndex == 0) {
+                    targetIndex + 2 // 정보 텍스트 + 프로그레스바 아이템
+                } else {
+                    targetIndex + 1 // 프로그레스바 아이템만
+                }
+
+                // LazyColumn이 완전히 구성될 때까지 잠시 대기
+                kotlinx.coroutines.delay(100)
+
+                try {
+                    listState.animateScrollToItem(actualIndex)
+
+                    // openComments가 true이면 댓글 버텀시트를 자동으로 열기
+                    if (openComments) {
+                        kotlinx.coroutines.delay(200) // 스크롤 완료 후 잠시 대기
+                        selectedPostForComment = targetPost
+                        isCommentBottomSheetVisible = true
+                    }
+                } catch (e: Exception) {
+                    // 애니메이션이 실패하면 일반 스크롤 시도
+                    listState.scrollToItem(actualIndex)
+
+                    // openComments가 true이면 댓글 버텀시트를 자동으로 열기
+                    if (openComments) {
+                        kotlinx.coroutines.delay(200) // 스크롤 완료 후 잠시 대기
+                        selectedPostForComment = targetPost
+                        isCommentBottomSheetVisible = true
+                    }
+                }
+
+                onEvent(GroupNoteEvent.ClearScrollTarget)
+            }
         }
     }
 
@@ -366,6 +466,11 @@ fun GroupNoteContent(
                                 Modifier
                             }
 
+                            val showExpiredToast = {
+                                toastMessage = expiredRoomMessage
+                                showToast = true
+                            }
+
                             when (post.postType) {
                                 "RECORD" -> TextCommentCard(
                                     data = post,
@@ -374,13 +479,19 @@ fun GroupNoteContent(
                                         selectedPostForComment = post
                                         isCommentBottomSheetVisible = true
                                     },
-                                    onLongPress = { selectedPostForMenu = post },
+                                    onLongPress = {
+                                        if (isExpired) showExpiredToast() else {
+                                            selectedPostForMenu = post
+                                        }
+                                    },
                                     onPinClick = {
                                         postToPin = post
                                         isPinDialogVisible = true
                                     },
                                     onLikeClick = { postId, postType ->
-                                        onEvent(GroupNoteEvent.OnLikeRecord(postId, postType))
+                                        if (isExpired) showExpiredToast() else {
+                                            onEvent(GroupNoteEvent.OnLikeRecord(postId, postType))
+                                        }
                                     },
                                     onProfileClick = { onNavigateToUserProfile(post.userId) }
                                 )
@@ -392,12 +503,18 @@ fun GroupNoteContent(
                                         selectedPostForComment = post
                                         isCommentBottomSheetVisible = true
                                     },
-                                    onLongPress = { selectedPostForMenu = post },
+                                    onLongPress = {
+                                        if (isExpired) showExpiredToast() else {
+                                            selectedPostForMenu = post
+                                        }
+                                    },
                                     onVote = { postId, voteItemId, type ->
                                         onEvent(GroupNoteEvent.OnVote(postId, voteItemId, type))
                                     },
                                     onLikeClick = { postId, postType ->
-                                        onEvent(GroupNoteEvent.OnLikeRecord(postId, postType))
+                                        if (isExpired) showExpiredToast() else {
+                                            onEvent(GroupNoteEvent.OnLikeRecord(postId, postType))
+                                        }
                                     },
                                     onProfileClick = { onNavigateToUserProfile(post.userId) }
                                 )
@@ -468,20 +585,32 @@ fun GroupNoteContent(
                 }
             }
 
-            ExpandableFloatingButton(
-                menuItems = listOf(
-                    FabMenuItem(
-                        icon = painterResource(R.drawable.ic_write),
-                        text = stringResource(R.string.write_record),
-                        onClick = onCreateNoteClick
-                    ),
-                    FabMenuItem(
-                        icon = painterResource(R.drawable.ic_vote),
-                        text = stringResource(R.string.create_vote),
-                        onClick = onCreateVoteClick
+            if (!isExpired) {
+                ExpandableFloatingButton(
+                    menuItems = listOf(
+                        FabMenuItem(
+                            icon = painterResource(R.drawable.ic_write),
+                            text = stringResource(R.string.write_record),
+                            onClick = onCreateNoteClick
+                        ),
+                        FabMenuItem(
+                            icon = painterResource(R.drawable.ic_vote),
+                            text = stringResource(R.string.create_vote),
+                            onClick = onCreateVoteClick
+                        ),
+                        FabMenuItem(
+                            icon = painterResource(R.drawable.ic_ai_book_review),
+                            text = stringResource(R.string.create_ai_book_review),
+                            onClick = {
+                                scope.launch {
+                                    onEvent(GroupNoteEvent.CheckAiUsage)
+                                    showAiReviewDialog = true
+                                }
+                            }
+                        )
                     )
                 )
-            )
+            }
         }
     }
 
@@ -498,6 +627,7 @@ fun GroupNoteContent(
         CommentBottomSheet(
             viewModel = commentsViewModel,
             uiState = commentsUiState,
+            isExpired = isExpired,
             onDismiss = {
                 isCommentBottomSheetVisible = false
                 selectedPostForComment = null
@@ -609,6 +739,30 @@ fun GroupNoteContent(
         }
     }
 
+    if (showAiReviewDialog) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            DialogPopup(
+                title = stringResource(R.string.ai_review_dialog_title),
+                description = stringResource(
+                    R.string.ai_review_dialog_description,
+                    uiState.recordCount,
+                    5
+                ),
+                onConfirm = {
+                    onNavigateToAiReview()
+                    showAiReviewDialog = false
+                },
+                onCancel = {
+                    showAiReviewDialog = false
+                }
+            )
+        }
+    }
+
     AnimatedVisibility(
         modifier = Modifier
             .padding(horizontal = 20.dp, vertical = 16.dp),
@@ -624,7 +778,7 @@ fun GroupNoteContent(
     ) {
         ToastWithDate(
             message = toastMessage,
-            color = if (isErrorToast) colors.Red else colors.DarkGrey
+            color = if (isErrorToast) colors.Red else colors.White
         )
     }
 }
@@ -671,7 +825,8 @@ private fun GroupNoteScreenPreview() {
             progress = 0.5f,
             onNavigateToUserProfile = {},
             onEditNoteClick = {},
-            onEditVoteClick = {}
+            onEditVoteClick = {},
+            onNavigateToAiReview = {}
         )
     }
 }

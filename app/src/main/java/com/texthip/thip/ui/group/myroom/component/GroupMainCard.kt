@@ -105,7 +105,7 @@ fun GroupMainCard(
                         )
                         Spacer(Modifier.width(2.dp))
 
-                        Row (
+                        Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -122,23 +122,39 @@ fun GroupMainCard(
                     }
                     Spacer(Modifier.height(16.dp))
                     // 닉네임 + 진행도
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            text = stringResource(R.string.group_progress, userName),
-                            color = colors.Grey02,
-                            style = typography.view_m500_s14
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = "${data.userPercentage}",
-                            color = colors.Purple,
-                            style = typography.smalltitle_sb600_s16_h20
-                        )
-                        Text(
-                            text = "%",
-                            color = colors.Purple,
-                            style = typography.menu_sb600_s12,
-                        )
+                    if (data.deadlineDate == null) {
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = stringResource(R.string.group_progress, userName),
+                                color = colors.Grey02,
+                                style = typography.view_m500_s14
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = "${data.userPercentage}",
+                                color = colors.Purple,
+                                style = typography.smalltitle_sb600_s16_h20
+                            )
+                            Text(
+                                text = "%",
+                                color = colors.Purple,
+                                style = typography.menu_sb600_s12,
+                            )
+                        }
+                    } else {
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = stringResource(R.string.until_start),
+                                color = colors.Grey02,
+                                style = typography.view_m500_s14
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = data.deadlineDate,
+                                color = colors.Purple,
+                                style = typography.smalltitle_sb600_s16_h20
+                            )
+                        }
                     }
                     Spacer(Modifier.height(10.dp))
 
@@ -153,7 +169,10 @@ fun GroupMainCard(
                             modifier = Modifier
                                 .fillMaxWidth(fraction = percentage / 100f)
                                 .fillMaxHeight()
-                                .background(color = colors.Purple, shape = RoundedCornerShape(12.dp))
+                                .background(
+                                    color = colors.Purple,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
                         )
                     }
                     Spacer(Modifier.height(2.dp))

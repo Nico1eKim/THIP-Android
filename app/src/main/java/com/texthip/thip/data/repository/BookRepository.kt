@@ -19,11 +19,15 @@ class BookRepository @Inject constructor(
 ) {
 
     /** 저장된 책 또는 모임 책 목록 조회 */
-    suspend fun getBooks(type: String, cursor: String? = null): Result<BookListResponse?> = runCatching {
-        bookService.getBooks(type, cursor)
-            .handleBaseResponse()
-            .getOrThrow()
-    }
+    suspend fun getBooks(
+        type: String,
+        cursor: String? = null
+    ): Result<BookListResponse?> =
+        runCatching {
+            bookService.getBooks(type, cursor)
+                .handleBaseResponse()
+                .getOrThrow()
+        }
 
     /** 책 검색 */
     suspend fun searchBooks(
@@ -37,21 +41,27 @@ class BookRepository @Inject constructor(
     }
 
     /** 인기 책 조회 */
-    suspend fun getMostSearchedBooks(): Result<MostSearchedBooksResponse?> = runCatching {
+    suspend fun getMostSearchedBooks(
+    ): Result<MostSearchedBooksResponse?> = runCatching {
         bookService.getMostSearchedBooks()
             .handleBaseResponse()
             .getOrThrow()
     }
 
     /** 책 상세 조회 */
-    suspend fun getBookDetail(isbn: String): Result<BookDetailResponse?> = runCatching {
+    suspend fun getBookDetail(
+        isbn: String
+    ): Result<BookDetailResponse?> = runCatching {
         bookService.getBookDetail(isbn)
             .handleBaseResponse()
             .getOrThrow()
     }
 
     /** 책 저장/저장취소 */
-    suspend fun saveBook(isbn: String, type: Boolean): Result<BookSaveResponse?> = runCatching {
+    suspend fun saveBook(
+        isbn: String,
+        type: Boolean
+    ): Result<BookSaveResponse?> = runCatching {
         bookService.saveBook(isbn, BookSaveRequest(type))
             .handleBaseResponse()
             .getOrThrow()
@@ -67,7 +77,9 @@ class BookRepository @Inject constructor(
             .getOrThrow()
     }
 
-    suspend fun getSavedBooks(cursor: String? = null): Result<BookUserSaveResponse?> = runCatching {
+    suspend fun getSavedBooks(
+        cursor: String? = null
+    ): Result<BookUserSaveResponse?> = runCatching {
         bookService.getSavedBooks(cursor)
             .handleBaseResponse()
             .getOrThrow()

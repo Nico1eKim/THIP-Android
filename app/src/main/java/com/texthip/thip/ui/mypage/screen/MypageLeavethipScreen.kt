@@ -105,24 +105,27 @@ fun DeleteAccountScreen(
                         text = buildAnnotatedString {
                             append(stringResource(R.string.leave_thip_notice_1) + " ")
                             withStyle(style = SpanStyle(color = Red)) {
+                                append(stringResource(R.string.leave_thip_notice_1_2))
+                            }
+                            append(stringResource(R.string.leave_thip_notice_1_3))
+                            withStyle(style = SpanStyle(color = Red)) {
                                 append(stringResource(R.string.leave_thip_notice_2))
                             }
-                            append(" ")
                             append(stringResource(R.string.leave_thip_notice_3))
                         },
-                        style = typography.copy_r400_s14,
+                        style = typography.feedcopy_r400_s14_h20,
                         color = colors.White
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         text = stringResource(R.string.leave_thip_notice_4),
-                        style = typography.copy_r400_s14,
+                        style = typography.feedcopy_r400_s14_h20,
                         color = colors.White
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     Text(
                         text = stringResource(R.string.leave_thip_notice_5),
-                        style = typography.copy_r400_s14,
+                        style = typography.feedcopy_r400_s14_h20,
                         color = colors.White
                     )
                 }

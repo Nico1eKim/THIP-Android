@@ -92,9 +92,10 @@ fun GroupMyContent(
     // Filter 상태를 
     val selectedStates = remember(uiState.currentRoomType) {
         when (uiState.currentRoomType) {
-            RoomType.PLAYING -> booleanArrayOf(true, false)
-            RoomType.RECRUITING -> booleanArrayOf(false, true)
-            else -> booleanArrayOf(false, false) // playingAndRecruiting
+            RoomType.PLAYING -> booleanArrayOf(true, false, false) // 진행중
+            RoomType.RECRUITING -> booleanArrayOf(false, true, false) // 모집중
+            RoomType.EXPIRED -> booleanArrayOf(false, false, true) // 완료
+            else -> booleanArrayOf(false, false, false) // 전체(아무것도 선택 안함)
         }
     }
 
@@ -123,27 +124,34 @@ fun GroupMyContent(
                 GroupMyRoomFilterRow(
                     selectedStates = selectedStates,
                     onToggle = { idx ->
-                        val newRoomType = when {
+                        val newRoomType = when(idx) {
                             // 진행중 버튼을 눌렀을 때
-                            idx == 0 -> {
+                            0 -> {
                                 if (selectedStates[0]) {
                                     // 이미 선택된 상태면 전체로 변경
-                                    RoomType.PLAYING_AND_RECRUITING
+                                    RoomType.ALL
                                 } else {
                                     // 선택되지 않은 상태면 진행중만
                                     RoomType.PLAYING
                                 }
                             }
                             // 모집중 버튼을 눌렀을 때  
-                            idx == 1 -> {
+                            1 -> {
                                 if (selectedStates[1]) {
-                                    RoomType.PLAYING_AND_RECRUITING
+                                    RoomType.ALL
                                 } else {
                                     RoomType.RECRUITING
                                 }
                             }
-
-                            else -> RoomType.PLAYING_AND_RECRUITING
+                            // 완료 버튼을 눌렀을 때
+                            2 -> {
+                                if (selectedStates[2]) {
+                                    RoomType.ALL
+                                } else {
+                                    RoomType.EXPIRED
+                                }
+                            }
+                            else -> RoomType.ALL
                         }
                         onChangeRoomType(newRoomType)
                     }
@@ -167,6 +175,7 @@ fun GroupMyContent(
                                 endDate = room.endDate,
                                 imageUrl = room.bookImageUrl,
                                 isSecret = !room.isPublic,
+                                isExpired = (room.type == RoomType.EXPIRED.value),
                                 onClick = { onCardClick(room) }
                             )
                         }
@@ -265,7 +274,7 @@ fun GroupMyScreenPreview() {
                         isPublic = false
                     )
                 ),
-                currentRoomType = RoomType.PLAYING_AND_RECRUITING,
+                currentRoomType = RoomType.ALL,
                 isLoading = false,
                 hasMore = true
             )

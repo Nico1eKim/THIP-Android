@@ -68,7 +68,7 @@ fun GroupRoomDeadlineSection(
             // Genre enum을 현지화된 문자열로 변환
             val genreStrings = Genre.entries.toDisplayStrings()
 
-            // 마감 임박 방 목록과 인기 방 목록을 섹션으로 구성
+            // 마감 임박 방 목록, 인기 방 목록, 최신 생성 모임방을 섹션으로 구성
             val roomSections = listOf(
                 Pair(
                     stringResource(R.string.room_section_deadline),
@@ -77,12 +77,18 @@ fun GroupRoomDeadlineSection(
                 Pair(
                     stringResource(R.string.room_section_popular),
                     roomMainList?.popularRoomList ?: emptyList()
-                )
+                ),
+                Pair(
+                    stringResource(R.string.room_section_recent),
+                    roomMainList?.recentRoomList ?: emptyList()
+                ),
             )
 
+            val actualPageCount = roomSections.size
+
             val effectivePagerState = rememberPagerState(
-                initialPage = 0,
-                pageCount = { roomSections.size }
+                initialPage = 2,
+                pageCount = { Int.MAX_VALUE }
             )
 
             HorizontalPager(
@@ -91,7 +97,8 @@ fun GroupRoomDeadlineSection(
                 pageSpacing = pageSpacing,
                 modifier = Modifier.fillMaxWidth()
             ) { page ->
-                val (sectionTitle, rooms) = roomSections[page]
+                val actualPage = page % actualPageCount
+                val (sectionTitle, rooms) = roomSections[actualPage]
 
                 val isCurrent = effectivePagerState.currentPage == page
                 val scale = if (isCurrent) 1f else 0.94f

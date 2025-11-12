@@ -24,11 +24,13 @@ fun AlarmFilterRow(
         OptionChipButton(
             text = stringResource(R.string.alarm_feed),
             isFilled = true,
+            isSelected = selectedStates[0],
             onClick = { onToggle(0) }
         )
         OptionChipButton(
             text = stringResource(R.string.alarm_group),
             isFilled = true,
+            isSelected = selectedStates[1],
             onClick = { onToggle(1) }
         )
     }

@@ -2,9 +2,10 @@ package com.texthip.thip.ui.signin.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.texthip.thip.data.manager.FcmTokenManager
 import com.texthip.thip.data.manager.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +19,8 @@ sealed interface SplashDestination {
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val fcmTokenManager: FcmTokenManager
 ) : ViewModel() {
 
     private val _destination = MutableStateFlow<SplashDestination>(SplashDestination.Loading)
@@ -37,8 +39,16 @@ class SplashViewModel @Inject constructor(
             if (token.isNullOrBlank()) {
                 _destination.value = SplashDestination.NavigateToLogin
             } else {
+                // 자동 로그인 시 FCM 토큰 전송
+                sendFcmToken()
                 _destination.value = SplashDestination.NavigateToHome
             }
+        }
+    }
+
+    private fun sendFcmToken() {
+        viewModelScope.launch {
+            fcmTokenManager.sendCurrentTokenIfExists()
         }
     }
 }

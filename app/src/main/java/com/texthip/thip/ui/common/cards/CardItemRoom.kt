@@ -45,6 +45,7 @@ fun CardItemRoom(
     imageUrl: String? = null,
     hasBorder: Boolean = false,
     isSecret: Boolean? = null,
+    isExpired: Boolean = false,
     onClick: () -> Unit = {}
 ) {
     Card(
@@ -161,19 +162,21 @@ fun CardItemRoom(
                             }
                         }
                     }
-                    endDate?.let {
-                        Spacer(modifier = Modifier.height(5.dp))
+                    if (!isExpired) {
+                        endDate?.let {
+                            Spacer(modifier = Modifier.height(5.dp))
 
-                        Text(
-                            text = endDate
-                                    + if (isRecruiting) stringResource(
-                                R.string.card_item_end
-                            ) else stringResource(R.string.card_item_finish),
+                            Text(
+                                text = endDate
+                                        + if (isRecruiting) stringResource(
+                                    R.string.card_item_end
+                                ) else stringResource(R.string.card_item_finish),
 
-                            color = if (isRecruiting) colors.Red else colors.Grey01,
-                            style = typography.menu_sb600_s12_h20,
-                            maxLines = 1
-                        )
+                                color = if (isRecruiting) colors.Red else colors.Grey01,
+                                style = typography.menu_sb600_s12_h20,
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
             }

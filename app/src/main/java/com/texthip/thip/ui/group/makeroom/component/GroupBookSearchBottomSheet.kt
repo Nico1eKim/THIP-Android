@@ -82,6 +82,7 @@ fun GroupBookSearchBottomSheet(
                 SearchBookTextField(
                     hint = stringResource(R.string.group_book_search_hint),
                     text = searchText,
+                    backgroundColor = ThipTheme.colors.DarkGrey02,
                     onValueChange = {
                         searchText = it
                         onSearch(it)

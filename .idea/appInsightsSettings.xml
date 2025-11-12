@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AppInsightsSettings">
+    <option name="selectedTabId" value="Firebase Crashlytics" />
     <option name="tabSettings">
       <map>
         <entry key="Android Vitals">
@@ -23,9 +24,9 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.texthip.thip" />
-                  <option name="mobileSdkAppId" value="1:353417813537:android:69029c2bc957df7fab4d60" />
-                  <option name="projectId" value="thip-3a698" />
-                  <option name="projectNumber" value="353417813537" />
+                  <option name="mobileSdkAppId" value="1:211189590640:android:f1d3ad964277af1098a2b5" />
+                  <option name="projectId" value="thip-9fdc6" />
+                  <option name="projectNumber" value="211189590640" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

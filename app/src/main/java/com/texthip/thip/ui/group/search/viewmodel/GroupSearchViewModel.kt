@@ -24,6 +24,7 @@ data class GroupSearchUiState(
     val isInitial: Boolean = true,
     val isLiveSearching: Boolean = false,
     val isCompleteSearching: Boolean = false,
+    val isAllCategory: Boolean = false,
 
     // 검색 결과 및 데이터
     val searchResults: List<SearchRoomItem> = emptyList(),
@@ -49,7 +50,7 @@ data class GroupSearchUiState(
 ) {
     val hasResults: Boolean get() = searchResults.isNotEmpty()
     val canLoadMore: Boolean get() = hasMore && !isSearching && !isLoadingMore
-    val showEmptyState: Boolean get() = searchQuery.isNotBlank() && searchResults.isEmpty() && !isSearching
+    val showEmptyState: Boolean get() = (isCompleteSearching || isAllCategory) && searchResults.isEmpty() && !isSearching
 }
 
 @HiltViewModel
@@ -108,7 +109,8 @@ class GroupSearchViewModel @Inject constructor(
                 it.copy(
                     isInitial = false,
                     isLiveSearching = true,
-                    isCompleteSearching = false
+                    isCompleteSearching = false,
+                    isAllCategory = false
                 )
             }
             searchJob = viewModelScope.launch {
@@ -121,16 +123,21 @@ class GroupSearchViewModel @Inject constructor(
     }
 
     fun onSearchButtonClick() {
-        val query = uiState.value.searchQuery
-        if (query.isNotEmpty()) {  // 공백도 검색 가능 (빈 문자열만 제외)
-            searchJob?.cancel()
-            loadMoreJob?.cancel()
+        val query = uiState.value.searchQuery.trim()
+        searchJob?.cancel()
+        loadMoreJob?.cancel()
 
+        // 검색어가 비어있으면 '전체 모임방' 검색 실행
+        if (query.isEmpty()) {
+            onViewAllRooms()
+        } else {
+            // 검색어가 있으면 기존 검색 로직 실행
             updateState {
                 it.copy(
                     isInitial = false,
                     isLiveSearching = false,
-                    isCompleteSearching = true
+                    isCompleteSearching = true,
+                    isAllCategory = false
                 )
             }
             viewModelScope.launch {
@@ -140,10 +147,25 @@ class GroupSearchViewModel @Inject constructor(
         }
     }
 
+    fun onViewAllRooms() {
+        searchJob?.cancel()
+        loadMoreJob?.cancel()
+        updateState {
+            it.copy(
+                searchQuery = "",
+                isInitial = false,
+                isLiveSearching = false,
+                isCompleteSearching = false,
+                isAllCategory = true
+            )
+        }
+        performSearchWithCurrentQuery()
+    }
+
     fun updateSelectedGenre(genre: Genre?) {
         updateState { it.copy(selectedGenre = genre) }
         // 필터 변경 시 새로운 검색 수행 (공백도 허용)
-        if (uiState.value.searchQuery.isNotEmpty() && !uiState.value.isInitial) {
+        if (uiState.value.isCompleteSearching || uiState.value.isAllCategory) {
             performSearchWithCurrentQuery()
         }
     }
@@ -151,26 +173,28 @@ class GroupSearchViewModel @Inject constructor(
     fun updateSortType(sort: String) {
         updateState { it.copy(selectedSort = sort) }
         // 정렬 변경 시 새로운 검색 수행 (공백도 허용)
-        if (uiState.value.searchQuery.isNotEmpty() && !uiState.value.isInitial) {
+        if (uiState.value.isCompleteSearching || uiState.value.isAllCategory) {
             performSearchWithCurrentQuery()
         }
     }
 
     private fun performSearchWithCurrentQuery() {
-        val currentState = uiState.value
-        if (currentState.searchQuery.isNotEmpty()) {  // 공백도 허용
-            searchJob?.cancel()
-            loadMoreJob?.cancel()
+        searchJob?.cancel()
+        loadMoreJob?.cancel()
 
-            searchJob = viewModelScope.launch {
-                performSearch(currentState.searchQuery, isLiveSearch = currentState.isLiveSearching)
-            }
+        searchJob = viewModelScope.launch {
+            val currentState = uiState.value
+            performSearch(
+                query = currentState.searchQuery,
+                isLiveSearch = currentState.isLiveSearching,
+                isFinalized = !currentState.isLiveSearching || currentState.isAllCategory
+            )
         }
     }
 
     fun loadMoreRooms() {
         val currentState = uiState.value
-        if (currentState.canLoadMore && currentState.searchQuery.isNotEmpty()) {  // 공백도 허용
+        if (currentState.canLoadMore) {
             loadMoreJob?.cancel()
             loadMoreJob = viewModelScope.launch {
                 performLoadMore()
@@ -178,13 +202,9 @@ class GroupSearchViewModel @Inject constructor(
         }
     }
 
-    private suspend fun performSearch(query: String, isLiveSearch: Boolean) {
-        val currentState = uiState.value
+    private suspend fun performSearch(query: String, isLiveSearch: Boolean, isFinalized: Boolean = !isLiveSearch) {
         updateState {
             it.copy(
-                isInitial = false,
-                isLiveSearching = isLiveSearch,
-                isCompleteSearching = !isLiveSearch,
                 isSearching = true,
                 error = null,
                 searchResults = emptyList(),
@@ -193,12 +213,15 @@ class GroupSearchViewModel @Inject constructor(
             )
         }
 
+        val currentState = uiState.value
         val category = currentState.selectedGenre?.apiCategory ?: ""
+
         roomsRepository.searchRooms(
             keyword = query,
             category = category,
+            isAllCategory = currentState.isAllCategory,
             sort = currentState.selectedSort,
-            isFinalized = !isLiveSearch,
+            isFinalized = isFinalized,
             cursor = null
         )
             .onSuccess { response ->
@@ -248,8 +271,9 @@ class GroupSearchViewModel @Inject constructor(
         roomsRepository.searchRooms(
             keyword = currentState.searchQuery,
             category = category,
+            isAllCategory = currentState.isAllCategory,
             sort = currentState.selectedSort,
-            isFinalized = true,
+            isFinalized = currentState.isCompleteSearching || currentState.isAllCategory,
             cursor = currentState.nextCursor
         )
             .onSuccess { response ->

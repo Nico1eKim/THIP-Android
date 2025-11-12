@@ -1,8 +1,6 @@
 package com.texthip.thip.data.manager
 
-/**
- * 도서 장르를 나타내는 enum class
- */
+
 enum class Genre(
     val displayKey: String,
     val apiCategory: String,

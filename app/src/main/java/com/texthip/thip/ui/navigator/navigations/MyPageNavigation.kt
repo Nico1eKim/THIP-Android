@@ -5,10 +5,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import com.texthip.thip.ui.mypage.screen.DeleteAccountScreen
 import com.texthip.thip.ui.mypage.screen.EditProfileScreen
+import com.texthip.thip.ui.mypage.screen.MyPageNotificationEditScreen
 import com.texthip.thip.ui.mypage.screen.MyPageScreen
 import com.texthip.thip.ui.mypage.screen.MypageCustomerServiceScreen
 import com.texthip.thip.ui.mypage.screen.MypageSaveScreen
-import com.texthip.thip.ui.mypage.screen.NotificationScreen
 import com.texthip.thip.ui.navigator.extensions.navigateToBookDetail
 import com.texthip.thip.ui.navigator.extensions.navigateToCustomerService
 import com.texthip.thip.ui.navigator.extensions.navigateToEditProfile
@@ -53,7 +53,7 @@ fun NavGraphBuilder.myPageNavigation(
         )
     }
     composable<MyPageRoutes.NotificationEdit> {
-        NotificationScreen(
+        MyPageNotificationEditScreen(
             onNavigateBack = { navController.popBackStack() }
         )
     }

@@ -28,10 +28,10 @@ import com.texthip.thip.data.model.rooms.response.SearchRoomItem
 import com.texthip.thip.ui.common.buttons.FilterButton
 import com.texthip.thip.ui.common.forms.SearchBookTextField
 import com.texthip.thip.ui.common.topappbar.DefaultTopAppBar
-import com.texthip.thip.ui.group.search.component.GroupRecentSearch
 import com.texthip.thip.ui.group.search.component.GroupEmptyResult
 import com.texthip.thip.ui.group.search.component.GroupFilteredSearchResult
 import com.texthip.thip.ui.group.search.component.GroupLiveSearchResult
+import com.texthip.thip.ui.group.search.component.GroupRecentSearch
 import com.texthip.thip.ui.group.search.viewmodel.GroupSearchUiState
 import com.texthip.thip.ui.group.search.viewmodel.GroupSearchViewModel
 import com.texthip.thip.ui.theme.ThipTheme
@@ -56,7 +56,8 @@ fun GroupSearchScreen(
         onDeleteRecentSearch = viewModel::deleteRecentSearchByKeyword,
         onLoadMoreRooms = viewModel::loadMoreRooms,
         onUpdateSelectedGenre = viewModel::updateSelectedGenre,
-        onUpdateSortType = viewModel::updateSortType
+        onUpdateSortType = viewModel::updateSortType,
+        onViewAllRooms = viewModel::onViewAllRooms
     )
 }
 
@@ -71,7 +72,8 @@ private fun GroupSearchContent(
     onDeleteRecentSearch: (String) -> Unit = {},
     onLoadMoreRooms: () -> Unit = {},
     onUpdateSelectedGenre: (Genre?) -> Unit = {},
-    onUpdateSortType: (String) -> Unit = {}
+    onUpdateSortType: (String) -> Unit = {},
+    onViewAllRooms: () -> Unit = {}
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -142,7 +144,8 @@ private fun GroupSearchContent(
                                     onUpdateSearchQuery(keyword)
                                     onSearchButtonClick()
                                 },
-                                onRemove = onDeleteRecentSearch
+                                onRemove = onDeleteRecentSearch,
+                                onViewAllRoomsClick = onViewAllRooms
                             )
                         }
                     }
@@ -164,7 +167,7 @@ private fun GroupSearchContent(
                         }
                     }
 
-                    uiState.isCompleteSearching -> {
+                    uiState.isCompleteSearching || uiState.isAllCategory -> {
                         GroupFilteredSearchResult(
                             genres = genreDisplayNames,
                             selectedGenreIndex = selectedGenreIndex,
@@ -173,15 +176,9 @@ private fun GroupSearchContent(
                                     uiState.genres.indexOf(uiState.selectedGenre)
                                 } else -1
 
-                                val selectedGenre = if (index == currentSelectedIndex) {
-                                    // 같은 장르를 다시 터치하면 선택 해제
-                                    null
-                                } else if (index >= 0 && index < uiState.genres.size) {
-                                    // 새로운 장르 선택
-                                    uiState.genres[index]
-                                } else {
-                                    null
-                                }
+                                val selectedGenre = if (index == currentSelectedIndex) null
+                                else if (index >= 0 && index < uiState.genres.size) uiState.genres[index]
+                                else null
                                 onUpdateSelectedGenre(selectedGenre)
                             },
                             resultCount = uiState.searchResults.size,
@@ -189,18 +186,18 @@ private fun GroupSearchContent(
                             onRoomClick = { room -> onRoomClick(room.roomId) },
                             canLoadMore = uiState.canLoadMore,
                             isLoadingMore = uiState.isLoadingMore,
-                            onLoadMore = onLoadMoreRooms
+                            onLoadMore = onLoadMoreRooms,
                         )
                     }
                 }
             }
         }
 
-        if (uiState.isCompleteSearching) {
+        if (uiState.isCompleteSearching || uiState.isAllCategory) {
             FilterButton(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(top = 196.dp, end = 20.dp),
+                    .padding(top = 174.dp, end = 20.dp),
                 selectedOption = sortOptions[selectedSortOptionIndex],
                 options = sortOptions,
                 onOptionSelected = { selected ->

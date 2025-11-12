@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.texthip.thip.R
+import com.texthip.thip.data.manager.FcmTokenManager
 import com.texthip.thip.data.manager.TokenManager
 import com.texthip.thip.data.model.base.ThipApiFailureException
 import com.texthip.thip.data.model.users.request.SignupRequest
@@ -31,7 +32,8 @@ data class SignupUiState(
 @HiltViewModel
 class SignupViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val fcmTokenManager: FcmTokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SignupUiState())
@@ -139,6 +141,9 @@ class SignupViewModel @Inject constructor(
                         tokenManager.saveToken(signupResponse.accessToken)
                         tokenManager.deleteTempToken()
 
+                        // 회원가입 완료 후 FCM 토큰 전송
+                        sendFcmToken()
+
                         _uiState.update { it.copy(isLoading = false, isSignupSuccess = true) }
                     }
                 }
@@ -149,6 +154,12 @@ class SignupViewModel @Inject constructor(
                         if (exception is ThipApiFailureException) exception.message else "회원가입에 실패했습니다."
                     _uiState.update { it.copy(isLoading = false, errorMessage = errorMsg) }
                 }
+        }
+    }
+
+    private fun sendFcmToken() {
+        viewModelScope.launch {
+            fcmTokenManager.sendCurrentTokenIfExists()
         }
     }
 }

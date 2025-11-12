@@ -7,6 +7,7 @@ import com.texthip.thip.data.service.CommentsService
 import com.texthip.thip.data.service.FeedService
 import com.texthip.thip.data.service.RoomsService
 import com.texthip.thip.data.service.UserService
+import com.texthip.thip.data.service.NotificationService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -56,4 +57,9 @@ object ServiceModule {
     @Singleton
     fun provideFeedService(retrofit: Retrofit): FeedService =
         retrofit.create(FeedService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideNotificationService(retrofit: Retrofit): NotificationService =
+        retrofit.create(NotificationService::class.java)
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.texthip.thip.data.manager.FcmTokenManager
 import com.texthip.thip.data.manager.TokenManager
 import com.texthip.thip.data.model.auth.response.AuthResponse
 import com.texthip.thip.data.repository.AuthRepository
@@ -24,7 +25,8 @@ sealed interface LoginUiState {
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val fcmTokenManager: FcmTokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -40,10 +42,12 @@ class LoginViewModel @Inject constructor(
                     if (response != null) {
                         if (response.isNewUser) {
                             tokenManager.saveTempToken(response.token) // 신규 유저는 임시 토큰으로 저장
+                            _uiState.update { LoginUiState.Success(response) }
                         } else {
                             tokenManager.saveToken(response.token) // 기존 유저는 정식 토큰으로 저장
+                            // 기존 유저의 경우 FCM 토큰 전송 후 Success 상태 업데이트
+                            sendFcmTokenAndUpdateState(response)
                         }
-                        _uiState.update { LoginUiState.Success(response) }
                     } else {
                         _uiState.update { LoginUiState.Error("서버로부터 응답을 받지 못했습니다.") }
                     }
@@ -67,10 +71,12 @@ class LoginViewModel @Inject constructor(
                     if (response != null) {
                         if (response.isNewUser) {
                             tokenManager.saveTempToken(response.token) // 신규 유저는 임시 토큰으로 저장
+                            _uiState.update { LoginUiState.Success(response) }
                         } else {
                             tokenManager.saveToken(response.token) // 기존 유저는 정식 토큰으로 저장
+                            // 기존 유저의 경우 FCM 토큰 전송 후 Success 상태 업데이트
+                            sendFcmTokenAndUpdateState(response)
                         }
-                        _uiState.update { LoginUiState.Success(response) }
                     } else {
                         _uiState.update { LoginUiState.Error("서버로부터 응답을 받지 못했습니다.") }
                     }
@@ -87,5 +93,12 @@ class LoginViewModel @Inject constructor(
     //상태를 다시 초기화-> 이벤트 중복 실행 방지
     fun clearLoginState() {
         _uiState.update { LoginUiState.Idle }
+    }
+
+    private fun sendFcmTokenAndUpdateState(response: AuthResponse) {
+        viewModelScope.launch {
+            fcmTokenManager.sendCurrentTokenIfExists()
+            _uiState.update { LoginUiState.Success(response) }
+        }
     }
 }

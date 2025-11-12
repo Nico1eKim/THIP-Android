@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 
 @HiltAndroidApp
-class ThipApplication : Application(){
+class ThipApplication : Application() {
     @Inject
     lateinit var tokenManager: TokenManager
 
@@ -18,7 +18,7 @@ class ThipApplication : Application(){
         // 카카오 SDK 초기화
         try {
             KakaoSdk.init(this, BuildConfig.NATIVE_APP_KEY)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }

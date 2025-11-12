@@ -63,11 +63,14 @@ class UserRepository @Inject constructor(
             .getOrThrow()
     }
 
-    suspend fun checkNickname(nickname: String): Result<NicknameResponse?> = runCatching {
+    suspend fun checkNickname(
+        nickname: String
+    ): Result<NicknameResponse?> = runCatching {
         userService.checkNickname(NicknameRequest(nickname))
             .handleBaseResponse()
             .getOrThrow()
     }
+
     suspend fun getAliasChoices(): Result<AliasChoiceResponse?> = runCatching {
         userService.getAliasChoices()
             .handleBaseResponse()
@@ -83,13 +86,10 @@ class UserRepository @Inject constructor(
             .handleBaseResponse()
             .getOrThrow()
     }
-/*
-    suspend fun updateProfile(request: ProfileUpdateRequest): Result<Unit?> = runCatching {
-        userService.updateProfile(request)
-            .handleBaseResponse()
-            .getOrThrow()
-    }*/
-    suspend fun updateProfile(request: ProfileUpdateRequest): Result<Unit?> {
+
+    suspend fun updateProfile(
+        request: ProfileUpdateRequest
+    ): Result<Unit?> {
         return try {
             val response = userService.updateProfile(request)
             response.handleBaseResponse().getOrThrow()
@@ -112,7 +112,9 @@ class UserRepository @Inject constructor(
     }
 
 
-    suspend fun signup(request: SignupRequest): Result<SignupResponse?> {
+    suspend fun signup(
+        request: SignupRequest
+    ): Result<SignupResponse?> {
         Log.d("SignupDebug", "UserRepository.signup() 호출됨. 요청 닉네임: ${request.nickname}")
 
         val tempToken = tokenManager.getTempTokenOnce()

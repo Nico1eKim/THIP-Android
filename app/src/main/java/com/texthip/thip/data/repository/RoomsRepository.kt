@@ -44,7 +44,9 @@ class RoomsRepository @Inject constructor(
     }
 
     /** 내가 참여 중인 모임방 목록 조회 */
-    suspend fun getMyJoinedRooms(cursor: String? = null): Result<JoinedRoomListResponse?> = runCatching {
+    suspend fun getMyJoinedRooms(
+        cursor: String? = null
+    ): Result<JoinedRoomListResponse?> = runCatching {
         val response = roomsService.getJoinedRooms(cursor)
             .handleBaseResponse()
             .getOrThrow()
@@ -55,8 +57,10 @@ class RoomsRepository @Inject constructor(
         response
     }
 
-    /** 카테고리별 모임방 섹션 조회 (마감임박/인기) */
-    suspend fun getRoomSections(genre: Genre? = null): Result<RoomMainList?> = runCatching {
+    /** 카테고리별 모임방 섹션 조회 (마감임박/인기/최근 생성) */
+    suspend fun getRoomSections(
+        genre: Genre? = null
+    ): Result<RoomMainList?> = runCatching {
         val selectedGenre = genre ?: genreManager.getDefaultGenre()
         val apiCategory = genreManager.mapGenreToApiCategory(selectedGenre)
 
@@ -76,14 +80,18 @@ class RoomsRepository @Inject constructor(
     }
 
     /** 모집중인 모임방 상세 정보 조회 */
-    suspend fun getRoomRecruiting(roomId: Int): Result<RoomRecruitingResponse?> = runCatching {
+    suspend fun getRoomRecruiting(
+        roomId: Int
+    ): Result<RoomRecruitingResponse?> = runCatching {
         roomsService.getRoomRecruiting(roomId)
             .handleBaseResponse()
             .getOrThrow()
     }
 
     /** 새 모임방 생성 */
-    suspend fun createRoom(request: CreateRoomRequest): Result<Int> = runCatching {
+    suspend fun createRoom(
+        request: CreateRoomRequest
+    ): Result<Int> = runCatching {
         val response = roomsService.createRoom(request)
             .handleBaseResponse()
             .getOrThrow()
@@ -92,7 +100,10 @@ class RoomsRepository @Inject constructor(
     }
 
     /** 모임방 참여 또는 취소 */
-    suspend fun joinOrCancelRoom(roomId: Int, type: String): Result<String> = runCatching {
+    suspend fun joinOrCancelRoom(
+        roomId: Int,
+        type: String
+    ): Result<String> = runCatching {
         val request = RoomJoinRequest(type = type)
         val response = roomsService.joinOrCancelRoom(roomId, request)
             .handleBaseResponse()
@@ -116,7 +127,9 @@ class RoomsRepository @Inject constructor(
     }
 
     /** 모집 마감 */
-    suspend fun closeRoom(roomId: Int): Result<RoomCloseResponse> = runCatching {
+    suspend fun closeRoom(
+        roomId: Int
+    ): Result<RoomCloseResponse> = runCatching {
         val response = roomsService.closeRoom(roomId)
             .handleBaseResponse()
             .getOrThrow()
@@ -128,11 +141,12 @@ class RoomsRepository @Inject constructor(
     suspend fun searchRooms(
         keyword: String,
         category: String,
+        isAllCategory: Boolean = false,
         sort: String = "deadline",
         isFinalized: Boolean = false,
         cursor: String? = null
     ): Result<RoomsSearchResponse?> = runCatching {
-        roomsService.searchRooms(keyword, category, sort, isFinalized, cursor)
+        roomsService.searchRooms(keyword, category, isAllCategory, sort, isFinalized, cursor)
             .handleBaseResponse()
             .getOrThrow()
     }
@@ -344,6 +358,22 @@ class RoomsRepository @Inject constructor(
             request = RoomsPatchVoteRequest(
                 content = content,
             )
+        ).handleBaseResponse().getOrThrow()
+    }
+
+    suspend fun getRoomsAiUsage(
+        roomId: Int,
+    ) = runCatching {
+        roomsService.getRoomsAiUsage(
+            roomId = roomId,
+        ).handleBaseResponse().getOrThrow()
+    }
+
+    suspend fun postRoomsAiReview(
+        roomId: Int,
+    ) = runCatching {
+        roomsService.postRoomsAiReview(
+            roomId = roomId,
         ).handleBaseResponse().getOrThrow()
     }
 }

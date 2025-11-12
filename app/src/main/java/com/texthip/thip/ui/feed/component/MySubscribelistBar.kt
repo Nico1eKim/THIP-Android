@@ -131,20 +131,25 @@ fun MySubscribeBarlist(
 }
 
 @Composable
-private fun EmptyMySubscriptionBar() {
+fun EmptyMySubscriptionBar(
+    modifier: Modifier = Modifier,
+    text: String = stringResource(R.string.find_thip_mate),
+    onClick: () -> Unit = {}
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
+            .padding(top = 8.dp)
             .fillMaxWidth()
             .height(42.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(colors.DarkGrey02)
-            .clickable { }
+            .clickable { onClick() }
     ) {
         Text(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(start = 12.dp),
-            text = stringResource(R.string.find_thip_mate),
+            text = text,
             color = colors.White,
             style = typography.view_m500_s12_h20
         )

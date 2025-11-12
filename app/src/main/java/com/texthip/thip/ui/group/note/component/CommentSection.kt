@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.texthip.thip.R
 import com.texthip.thip.data.model.comments.response.CommentList
 import com.texthip.thip.data.model.comments.response.ReplyList
 import com.texthip.thip.ui.group.note.viewmodel.CommentsEvent
@@ -18,12 +20,16 @@ import com.texthip.thip.ui.theme.ThipTheme
 @Composable
 fun CommentSection(
     commentItem: CommentList,
+    isExpired: Boolean = false,
     onReplyClick: (commentId: Int, nickname: String?) -> Unit,
     onEvent: (CommentsEvent) -> Unit = { _ -> },
     onCommentLongPress: (CommentList) -> Unit = { _ -> },
     onReplyLongPress: (ReplyList) -> Unit = { _ -> },
     onProfileClick: (userId: Long) -> Unit = {},
+    onShowToast: (String) -> Unit = {}
 ) {
+    val expiredRoomMessage = stringResource(R.string.expired_room_read_only_message)
+
     Box {
         Column(
             modifier = Modifier
@@ -35,20 +41,30 @@ fun CommentSection(
             CommentItem(
                 data = commentItem,
                 onReplyClick = {
-                    // commentId가 null이 아닐 때만 답글 달기 가능
-                    // todo: 수정 가능
-                    commentItem.commentId?.let { id ->
-                        onReplyClick(id, commentItem.creatorNickname)
+                    if (isExpired) {
+                        onShowToast(expiredRoomMessage)
+                    } else {
+                        commentItem.commentId?.let { id ->
+                            onReplyClick(id, commentItem.creatorNickname)
+                        }
                     }
                 },
                 onLikeClick = {
-                    // commentId가 null이 아닐 때만 좋아요 가능
-                    // todo: 수정 가능
-                    commentItem.commentId?.let { id ->
-                        onEvent(CommentsEvent.LikeComment(id))
+                    if (isExpired) {
+                        onShowToast(expiredRoomMessage)
+                    } else {
+                        commentItem.commentId?.let { id ->
+                            onEvent(CommentsEvent.LikeComment(id))
+                        }
                     }
                 },
-                onLongPress = { onCommentLongPress(commentItem) },
+                onLongPress = {
+                    if (isExpired) {
+                        onShowToast(expiredRoomMessage)
+                    } else {
+                        onCommentLongPress(commentItem)
+                    }
+                },
 
                 onProfileClick = {
                     commentItem.creatorId?.let { id -> onProfileClick(id) }
@@ -59,14 +75,28 @@ fun CommentSection(
                 ReplyItem(
                     data = reply,
                     onReplyClick = {
-                        commentItem.commentId?.let { parentId ->
-                            onReplyClick(parentId, reply.creatorNickname)
+                        if (isExpired) {
+                            onShowToast(expiredRoomMessage)
+                        } else {
+                            commentItem.commentId?.let { parentId ->
+                                onReplyClick(parentId, reply.creatorNickname)
+                            }
                         }
                     },
                     onLikeClick = {
-                        onEvent(CommentsEvent.LikeReply(reply.commentId))
+                        if (isExpired) {
+                            onShowToast(expiredRoomMessage)
+                        } else {
+                            onEvent(CommentsEvent.LikeReply(reply.commentId))
+                        }
                     },
-                    onLongPress = { onReplyLongPress(reply) },
+                    onLongPress = {
+                        if (isExpired) {
+                            onShowToast(expiredRoomMessage)
+                        } else {
+                            onReplyLongPress(reply)
+                        }
+                    },
                     onProfileClick = { onProfileClick(reply.creatorId) }
                 )
             }

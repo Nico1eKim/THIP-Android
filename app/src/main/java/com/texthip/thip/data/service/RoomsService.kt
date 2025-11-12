@@ -19,6 +19,8 @@ import com.texthip.thip.data.model.rooms.response.RoomJoinResponse
 import com.texthip.thip.data.model.rooms.response.RoomMainList
 import com.texthip.thip.data.model.rooms.response.RoomRecruitingResponse
 import com.texthip.thip.data.model.rooms.response.RoomSecretRoomResponse
+import com.texthip.thip.data.model.rooms.response.RoomsAiReviewResponse
+import com.texthip.thip.data.model.rooms.response.RoomsAiUsageResponse
 import com.texthip.thip.data.model.rooms.response.RoomsBookPageResponse
 import com.texthip.thip.data.model.rooms.response.RoomsCreateDailyGreetingResponse
 import com.texthip.thip.data.model.rooms.response.RoomsCreateVoteResponse
@@ -52,7 +54,7 @@ interface RoomsService {
         @Query("cursor") cursor: String? = null
     ): BaseResponse<JoinedRoomListResponse>
 
-    /** 카테고리별 모임방 목록 조회 (마감임박/인기) */
+    /** 카테고리별 모임방 목록 조회 (마감임박/인기/최근 생성) */
     @GET("rooms")
     suspend fun getRooms(
         @Query("category") category: String = "문학"
@@ -100,6 +102,7 @@ interface RoomsService {
     suspend fun searchRooms(
         @Query("keyword") keyword: String,
         @Query("category") category: String,
+        @Query("isAllCategory") isAllCategory: Boolean = false,
         @Query("sort") sort: String = "deadline",
         @Query("isFinalized") isFinalized: Boolean = false,
         @Query("cursor") cursor: String? = null
@@ -108,7 +111,7 @@ interface RoomsService {
 
 
     /** 기록장 API들 */
-    @GET("rooms/{roomId}/playing")
+    @GET("rooms/{roomId}")
     suspend fun getRoomsPlaying(
         @Path("roomId") roomId: Int
     ): BaseResponse<RoomsPlayingResponse>
@@ -214,4 +217,14 @@ interface RoomsService {
         @Path("voteId") voteId: Int,
         @Body request: RoomsPatchVoteRequest
     ): BaseResponse<RoomsPatchVoteResponse>
+
+    @GET("rooms/{roomId}/users/ai-usage")
+    suspend fun getRoomsAiUsage(
+        @Path("roomId") roomId: Int
+    ): BaseResponse<RoomsAiUsageResponse>
+
+    @POST("rooms/{roomId}/record/ai-review")
+    suspend fun postRoomsAiReview(
+        @Path("roomId") roomId: Int
+    ): BaseResponse<RoomsAiReviewResponse>
 }

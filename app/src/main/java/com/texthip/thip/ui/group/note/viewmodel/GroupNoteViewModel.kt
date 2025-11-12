@@ -1,6 +1,5 @@
 package com.texthip.thip.ui.group.note.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.texthip.thip.data.model.rooms.request.RoomsPostsRequestParams
@@ -31,6 +30,8 @@ data class GroupNoteUiState(
     val recentBookPage: Int = 0,
     val totalBookPage: Int = 0,
     val isOverviewPossible: Boolean = false,
+    val recordReviewCount: Int = 0,
+    val recordCount: Int = 0,
 
     // 필터 및 탭 상태
     val selectedTabIndex: Int = 0,
@@ -39,7 +40,10 @@ data class GroupNoteUiState(
     val pageEnd: String = "",
     val isOverview: Boolean = false,
     val isPageFilter: Boolean = false,
-    val totalEnabled: Boolean = false
+    val totalEnabled: Boolean = false,
+
+    // 스크롤 관련 상태
+    val scrollToPostId: Int? = null
 )
 
 sealed interface GroupNoteSideEffect {
@@ -62,6 +66,8 @@ sealed interface GroupNoteEvent {
     data class OnLikeRecord(val postId: Int, val postType: String) : GroupNoteEvent
     data class OnPinRecord(val recordId: Int, val content: String) : GroupNoteEvent
     data object RefreshPosts : GroupNoteEvent
+    data object ClearScrollTarget : GroupNoteEvent
+    data object CheckAiUsage : GroupNoteEvent
 }
 
 
@@ -82,7 +88,8 @@ class GroupNoteViewModel @Inject constructor(
     fun initialize(
         roomId: Int,
         initialPage: Int? = null,
-        initialIsOverview: Boolean? = null
+        initialIsOverview: Boolean? = null,
+        initialPostId: Int? = null
     ) {
         this.roomId = roomId
 
@@ -94,6 +101,12 @@ class GroupNoteViewModel @Inject constructor(
                     isOverview = initialIsOverview ?: false,
                     isPageFilter = initialPage != null
                 )
+            }
+        }
+
+        if (initialPostId != null) {
+            _uiState.update {
+                it.copy(scrollToPostId = initialPostId)
             }
         }
 
@@ -120,11 +133,31 @@ class GroupNoteViewModel @Inject constructor(
         }
     }
 
+    private fun loadAiUsageInfo() {
+        viewModelScope.launch {
+            roomsRepository.getRoomsAiUsage(roomId)
+                .onSuccess { usageResponse ->
+                    _uiState.update {
+                        it.copy(
+                            recordReviewCount = usageResponse?.recordReviewCount ?: 0,
+                            recordCount = usageResponse?.recordCount ?: 0
+                        )
+                    }
+                }
+                .onFailure { throwable ->
+                    _uiState.update { it.copy(error = throwable.message) }
+                }
+        }
+    }
+
     private fun refreshAllData() {
         viewModelScope.launch {
-            val postsJob = async { loadPosts(isRefresh = true) }
-            val bookPageJob = async { loadBookPageInfo() }
-            awaitAll(postsJob, bookPageJob)
+            val jobs = listOf(
+                async { loadPosts(isRefresh = true) },
+                async { loadBookPageInfo() },
+                async { loadAiUsageInfo() }
+            )
+            jobs.awaitAll()
         }
     }
 
@@ -168,8 +201,11 @@ class GroupNoteViewModel @Inject constructor(
             is GroupNoteEvent.OnLikeRecord -> likeRecord(event.postId, event.postType)
             is GroupNoteEvent.RefreshPosts -> loadPosts(isRefresh = true)
             is GroupNoteEvent.OnPinRecord -> pinRecord(event.recordId, event.content)
-            else -> {
-                Log.w("GroupNoteViewModel", "Unhandled event received: $event")
+            GroupNoteEvent.ClearScrollTarget -> {
+                _uiState.update { it.copy(scrollToPostId = null) }
+            }
+            GroupNoteEvent.CheckAiUsage -> {
+                loadAiUsageInfo()
             }
         }
     }
@@ -217,7 +253,8 @@ class GroupNoteViewModel @Inject constructor(
                 roomPostType = postType
             )
                 .onFailure {
-                    val rollbackPosts = currentPosts.toMutableList().apply { this[postIndex] = oldPost }
+                    val rollbackPosts =
+                        currentPosts.toMutableList().apply { this[postIndex] = oldPost }
                     _uiState.update { it.copy(posts = rollbackPosts) }
                 }
         }
@@ -275,7 +312,8 @@ class GroupNoteViewModel @Inject constructor(
 
                     // 기존 순서는 유지하고 내용만 업데이트
                     val updatedVoteItems = postToUpdate.voteItems.map { originalItem ->
-                        val newItem = serverVoteItems.find { it.voteItemId == originalItem.voteItemId }
+                        val newItem =
+                            serverVoteItems.find { it.voteItemId == originalItem.voteItemId }
                         newItem ?: originalItem
                     }
 

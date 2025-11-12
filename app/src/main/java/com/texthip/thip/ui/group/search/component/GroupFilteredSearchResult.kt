@@ -45,14 +45,35 @@ fun GroupFilteredSearchResult(
     onRoomClick: (SearchRoomItem) -> Unit = {},
     canLoadMore: Boolean = false,
     isLoadingMore: Boolean = false,
-    onLoadMore: () -> Unit = {}
+    onLoadMore: () -> Unit = {},
 ) {
+    val allChipText = stringResource(id = R.string.all)
+    val chipList = remember(genres) { listOf(allChipText) + genres }
+
+    val finalSelectedIndex = if (selectedGenreIndex != -1) {
+        // 특정 장르가 선택되었다면, '전체' 칩 때문에 +1 된 인덱스를 사용
+        selectedGenreIndex + 1
+    } else {
+        // 특정 장르가 선택되지 않았다면, '전체' 칩(인덱스 0)을 선택
+        0
+    }
+
+
     Column {
         GenreChipRow(
             modifier = Modifier.width(12.dp),
-            genres = genres,
-            selectedIndex = selectedGenreIndex,
-            onSelect = onGenreSelect
+            genres = chipList,
+            selectedIndex = finalSelectedIndex,
+            onSelect = { newIndex ->
+                when (newIndex) {
+                    // 칩 선택이 해제된 경우 (동일 칩 재클릭)
+                    -1 -> onGenreSelect(-1)
+                    // '전체' 칩이 선택된 경우 -> 장르 필터 해제
+                    0 -> onGenreSelect(-1)
+                    // 특정 장르가 선택된 경우 -> 원래 인덱스로 변환하여 전달
+                    else -> onGenreSelect(newIndex - 1)
+                }
+            }
         )
         Spacer(modifier = Modifier.height(20.dp))
 

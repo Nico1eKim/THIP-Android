@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun GroupRoomScreen(
     roomId: Int,
+    isExpired: Boolean = false,
     onBackClick: () -> Unit = {},
     onNavigateToMates: () -> Unit = {},
     onNavigateToChat: () -> Unit = {},
@@ -96,6 +97,7 @@ fun GroupRoomScreen(
             // 성공 시, 실제 데이터를 화면에 표시
             GroupRoomContent(
                 roomDetails = state.roomsPlaying,
+                isExpired = isExpired,
                 onBackClick = onBackClick,
                 onNavigateToMates = onNavigateToMates,
                 onNavigateToChat = onNavigateToChat,
@@ -109,7 +111,7 @@ fun GroupRoomScreen(
 
         is GroupRoomUiState.Error -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = state.message, color = colors.White) // TODO: 에러 메시지 스타일링
+                Text(text = state.message, color = colors.White)
             }
         }
     }
@@ -119,6 +121,7 @@ fun GroupRoomScreen(
 @Composable
 fun GroupRoomContent(
     roomDetails: RoomsPlayingResponse,
+    isExpired: Boolean = false,
     onBackClick: () -> Unit = {},
     onNavigateToMates: () -> Unit = {},
     onNavigateToChat: () -> Unit = {},
@@ -228,7 +231,8 @@ fun GroupRoomContent(
 
         GradationTopAppBar(
             onLeftClick = onBackClick,
-            isRightIconVisible = true,
+//            isRightIconVisible = true,
+            isRightIconVisible = !isExpired || !isOwner, // TODO: 방 삭제 기능 추가 시 변경
             onRightClick = { isBottomSheetVisible = true },
         )
 

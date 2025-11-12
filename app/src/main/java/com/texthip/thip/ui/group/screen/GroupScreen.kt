@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -31,9 +32,11 @@ import com.texthip.thip.R
 import com.texthip.thip.data.model.rooms.response.JoinedRoomResponse
 import com.texthip.thip.data.model.rooms.response.RoomMainList
 import com.texthip.thip.data.model.rooms.response.RoomMainResponse
+import com.texthip.thip.ui.common.alarmpage.viewmodel.AlarmViewModel
 import com.texthip.thip.ui.common.buttons.FloatingButton
 import com.texthip.thip.ui.common.modal.ToastWithDate
 import com.texthip.thip.ui.common.topappbar.LogoTopAppBar
+import com.texthip.thip.ui.feed.component.EmptyMySubscriptionBar
 import com.texthip.thip.ui.group.myroom.component.GroupMySectionHeader
 import com.texthip.thip.ui.group.myroom.component.GroupPager
 import com.texthip.thip.ui.group.myroom.component.GroupRoomDeadlineSection
@@ -48,33 +51,40 @@ import kotlinx.coroutines.delay
 @Composable
 fun GroupScreen(
     onNavigateToMakeRoom: () -> Unit = {},
-    onNavigateToGroupDone: () -> Unit = {}, // 완료된 화면으로 이동
     onNavigateToAlarm: () -> Unit = {}, // 알림 화면으로 이동
     onNavigateToGroupSearch: () -> Unit = {},   // 검색 화면으로 이동
     onNavigateToGroupMy: () -> Unit = {},   // 내 모임방 화면으로 이동
     onNavigateToGroupRecruit: (Int) -> Unit = {},   // 모집 중인 모임방 화면으로 이동
     onNavigateToGroupRoom: (Int) -> Unit = {},  // 기록장 화면으로 이동
-    viewModel: GroupViewModel = hiltViewModel()
+    onNavigateToGroupSearchAllRooms: () -> Unit = {},
+    viewModel: GroupViewModel = hiltViewModel(),
+    alarmViewModel: AlarmViewModel = hiltViewModel()
 ) {
     // 화면 재진입 시 데이터 새로고침
     LaunchedEffect(Unit) {
         viewModel.resetToInitialState()
+        alarmViewModel.checkUnreadNotifications()
     }
     val uiState by viewModel.uiState.collectAsState()
+    val alarmUiState by alarmViewModel.uiState.collectAsState()
 
     GroupContent(
         uiState = uiState,
+        hasUnreadNotifications = alarmUiState.hasUnreadNotifications,
         onNavigateToMakeRoom = onNavigateToMakeRoom,
-        onNavigateToGroupDone = onNavigateToGroupDone,
         onNavigateToAlarm = onNavigateToAlarm,
         onNavigateToGroupSearch = onNavigateToGroupSearch,
         onNavigateToGroupMy = onNavigateToGroupMy,
         onNavigateToGroupRecruit = onNavigateToGroupRecruit,
         onNavigateToGroupRoom = onNavigateToGroupRoom,
-        onRefreshGroupData = { viewModel.refreshGroupData() },
+        onNavigateToGroupSearchAllRooms = onNavigateToGroupSearchAllRooms,
+        onRefreshGroupData = {
+            viewModel.refreshGroupData()
+            alarmViewModel.checkUnreadNotifications()
+        },
         onCardVisible = { cardIndex -> viewModel.loadMoreGroups() },
         onSelectGenre = { genreIndex -> viewModel.selectGenre(genreIndex) },
-        onHideToast = { viewModel.hideToast() }
+        onHideToast = { viewModel.hideToast() },
     )
 }
 
@@ -82,20 +92,21 @@ fun GroupScreen(
 @Composable
 fun GroupContent(
     uiState: GroupUiState,
+    hasUnreadNotifications: Boolean = false,
     onNavigateToMakeRoom: () -> Unit = {},
-    onNavigateToGroupDone: () -> Unit = {},
     onNavigateToAlarm: () -> Unit = {},
     onNavigateToGroupSearch: () -> Unit = {},
     onNavigateToGroupMy: () -> Unit = {},
     onNavigateToGroupRecruit: (Int) -> Unit = {},
     onNavigateToGroupRoom: (Int) -> Unit = {},
+    onNavigateToGroupSearchAllRooms: () -> Unit = {},
     onRefreshGroupData: () -> Unit = {},
     onCardVisible: (Int) -> Unit = {},
     onSelectGenre: (Int) -> Unit = {},
     onHideToast: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
-    
+
     // 탭 전환 시 스크롤을 맨 위로 초기화
     LaunchedEffect(Unit) {
         scrollState.scrollTo(0)
@@ -117,7 +128,7 @@ fun GroupContent(
 
                 // 검색창
                 GroupSearchTextField(
-                    modifier = Modifier.padding(top = 72.dp, bottom = 32.dp),
+                    modifier = Modifier.padding(top = 75.dp, bottom = 32.dp),
                     onClick = onNavigateToGroupSearch
                 )
 
@@ -131,7 +142,13 @@ fun GroupContent(
                     groupCards = uiState.myJoinedRooms,
                     userName = uiState.userName,
                     onCardClick = { joinedRoom ->
-                        onNavigateToGroupRoom(joinedRoom.roomId)
+                        if (joinedRoom.deadlineDate == null) {
+                            // 시작 후
+                            onNavigateToGroupRoom(joinedRoom.roomId)
+                        } else {
+                            // 시작 전
+                            onNavigateToGroupRecruit(joinedRoom.roomId)
+                        }
                     },
                     onCardVisible = onCardVisible
                 )
@@ -144,6 +161,14 @@ fun GroupContent(
                         .fillMaxWidth()
                         .background(color = colors.DarkGrey02)
                 )
+
+                EmptyMySubscriptionBar(
+                    modifier = Modifier.padding(horizontal = 30.dp),
+                    text = stringResource(R.string.look_around_all_rooms),
+                    onClick = onNavigateToGroupSearchAllRooms
+                )
+
+                Spacer(Modifier.height(32.dp))
 
                 // 마감 임박한 독서 모임방
                 GroupRoomDeadlineSection(
@@ -161,9 +186,7 @@ fun GroupContent(
 
         // 상단바
         LogoTopAppBar(
-            leftIcon = painterResource(R.drawable.ic_done),
-            hasNotification = false,
-            onLeftClick = onNavigateToGroupDone,
+            hasNotification = hasUnreadNotifications,
             onRightClick = onNavigateToAlarm
         )
 

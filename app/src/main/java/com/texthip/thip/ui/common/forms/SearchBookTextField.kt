@@ -40,6 +40,7 @@ fun SearchBookTextField(
     modifier: Modifier = Modifier,
     text: String,
     hint: String,
+    backgroundColor: Color = colors.DarkGrey,
     onValueChange: (String) -> Unit,
     onSearch: (String) -> Unit = {}
 ) {
@@ -53,7 +54,7 @@ fun SearchBookTextField(
             .fillMaxWidth()
             .height(40.dp)
             .clip(shape)
-            .background(colors.DarkGrey),
+            .background(backgroundColor),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(

@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun GroupRoomChatScreen(
     onBackClick: () -> Unit,
+    isExpired: Boolean,
     viewModel: GroupRoomChatViewModel = hiltViewModel()
 ) {
     var inputText by remember { mutableStateOf("") }
@@ -73,6 +74,7 @@ fun GroupRoomChatScreen(
 
     val dailyGreetingLimitMessage = stringResource(R.string.group_room_chat_max)
     val deleteSuccessMessage = stringResource(R.string.group_room_chat_delete_success)
+    val expiredRoomMessage = stringResource(R.string.expired_room_read_only_message)
 
     LaunchedEffect(key1 = Unit) {
         viewModel.eventFlow.collectLatest { event ->
@@ -83,10 +85,12 @@ fun GroupRoomChatScreen(
                             toastMessage = dailyGreetingLimitMessage
                             toastColor = colorRed
                         }
+
                         ToastType.FIRST_WRITE -> {
                             toastMessage = dailyGreetingLimitMessage
                             toastColor = colorWhite
                         }
+
                         ToastType.DELETE_GREETING_SUCCESS -> {
                             toastMessage = deleteSuccessMessage
                             toastColor = colorWhite
@@ -94,9 +98,11 @@ fun GroupRoomChatScreen(
                     }
                     showToast = true
                 }
+
                 is GroupRoomChatEvent.ShowErrorToast -> {
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
+
                 else -> Unit
             }
         }
@@ -121,7 +127,13 @@ fun GroupRoomChatScreen(
         onNavigateBack = onBackClick,
         showToast = showToast,
         toastMessage = toastMessage,
-        toastColor = toastColor
+        toastColor = toastColor,
+        isExpired = isExpired,
+        onShowExpiredRoomToast = {
+            toastMessage = expiredRoomMessage
+            toastColor = colorWhite
+            showToast = true
+        }
     )
 }
 
@@ -136,6 +148,8 @@ fun GroupRoomChatContent(
     showToast: Boolean,
     toastMessage: String,
     toastColor: Color,
+    isExpired: Boolean = false,
+    onShowExpiredRoomToast: () -> Unit = {}
 ) {
     var isBottomSheetVisible by remember { mutableStateOf(false) }
     var selectedMessage by remember { mutableStateOf<TodayCommentList?>(null) }
@@ -258,8 +272,12 @@ fun GroupRoomChatContent(
                             CardCommentGroup(
                                 data = message,
                                 onMenuClick = {
-                                    selectedMessage = message
-                                    isBottomSheetVisible = true
+                                    if (isExpired) {
+                                        onShowExpiredRoomToast()
+                                    } else {
+                                        selectedMessage = message
+                                        isBottomSheetVisible = true
+                                    }
                                 }
                             )
                         }
@@ -267,12 +285,14 @@ fun GroupRoomChatContent(
                 }
             }
 
-            CommentTextField(
-                input = inputText,
-                hint = stringResource(R.string.group_room_chat_hint),
-                onInputChange = onInputTextChanged,
-                onSendClick = onSendClick
-            )
+            if (!isExpired) {
+                CommentTextField(
+                    input = inputText,
+                    hint = stringResource(R.string.group_room_chat_hint),
+                    onInputChange = onInputTextChanged,
+                    onSendClick = onSendClick
+                )
+            }
         }
 
         AnimatedVisibility(

@@ -121,8 +121,8 @@ fun FeedMyContent(
                         Spacer(modifier = Modifier.height(16.dp))
                         FeedSubscribeBarlist(
                             modifier = Modifier.padding(horizontal = 20.dp),
-                            followerProfileImageUrls = userInfo.latestFollowerProfileImageUrls
-                                ?: emptyList(),
+                            followerNum = userInfo.followerCount,
+                            followerProfileImageUrls = userInfo.latestFollowerProfileImageUrls,
                             onClick = { onNavigateToSubscriptionList(userInfo.creatorId) }
                         )
                         Spacer(modifier = Modifier.height(40.dp))
